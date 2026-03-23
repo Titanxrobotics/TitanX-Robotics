@@ -50,15 +50,15 @@
 
 <!-- 🔥 Instagram Fix Script -->
 <script>
-if (navigator.userAgent.includes("Instagram")) {
-  document.body.innerHTML = `
-    <h2 style="color:white">⚠ Open in Browser</h2>
-    <p style="color:gray">Instagram browser e login kaj korbe na</p>
-    <a href="https://titanx-robotics-official.netlify.app" 
-       style="color:cyan;font-size:20px;">
-       👉 Click to Open in Chrome
-    </a>
-  `;
+var ua = navigator.userAgent || navigator.vendor || window.opera;
+
+if (/Instagram/i.test(ua)) {
+  window.location.href = "intent://titanx-robotics-official.netlify.app/#Intent;scheme=https;package=com.android.chrome;end";
+
+  // fallback (jodi intent kaaj na kore)
+  setTimeout(function () {
+    window.location.href = "https://titanx-robotics-official.netlify.app";
+  }, 1500);
 }
 </script>
 
