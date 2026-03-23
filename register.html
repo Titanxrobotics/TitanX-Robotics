@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register - TitanX Robotics</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle, #050505, #000);
+      color: white;
+      text-align: center;
+      font-family: Arial;
+    }
+
+    .logo {
+      width: 200px;
+      margin-top: 30px;
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px cyan);
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+      100% { transform: translateY(0px); }
+    }
+
+    h1 {
+      color: cyan;
+      margin-top: 10px;
+    }
+
+    .box {
+      background: rgba(255,255,255,0.05);
+      padding: 30px;
+      margin: 30px auto;
+      width: 300px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(0,255,255,0.2);
+    }
+
+    input {
+      display: block;
+      margin: 12px auto;
+      padding: 12px;
+      width: 90%;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      outline: none;
+      background: #111;
+      color: white;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border: 2px solid cyan;
+      box-shadow: 0 0 15px cyan, 0 0 30px cyan;
+      transform: scale(1.03);
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px 25px;
+      background: cyan;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      box-shadow: 0 0 15px cyan, 0 0 30px cyan, 0 0 50px cyan;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+
+<body>
+
+<img src="photo1.jpeg" class="logo">
+
+<h1>Register - TitanX Robotics</h1>
+
+<div class="box">
+
+<input type="text" id="name" placeholder="Your Name">
+<input type="email" id="email" placeholder="Your Email">
+<input type="text" id="phone" placeholder="Phone Number">
+
+<button id="btn" onclick="register()">Submit</button>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyArTaM2XXi8nSZCykIQi-yeq9zbb4sVauc",
+  authDomain: "titanx-robotics.firebaseapp.com",
+  projectId: "titanx-robotics",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.register = async function() {
+
+  const btn = document.getElementById("btn");
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+
+  if (!name || !email || !phone) {
+    alert("⚠️ Please fill all fields!");
+    return;
+  }
+
+  try {
+    // 🔄 Button loading
+    btn.innerText = "Submitting...";
+    btn.disabled = true;
+
+    // 🔥 Save data
+    await addDoc(collection(db, "users"), {
+      name: name,
+      email: email,
+      phone: phone,
+      time: new Date()
+    });
+
+    // ✅ Success alert
+    alert("🎉 Registration Successful!");
+
+    // 🧹 Clear form
+    document.getElementById("name").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("phone").value = "";
+
+    // 🔁 Redirect
+    window.location.href = "home.html";
+
+  } catch (error) {
+    console.error(error);
+    alert("❌ Failed! Check internet or try again.");
+  } finally {
+    btn.innerText = "Submit";
+    btn.disabled = false;
+  }
+};
+
+</script>
+
+</body>
+</html>
