@@ -1,68 +1,145 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="title" content="TitanX Robotics">
+<meta charset="UTF-8">
+
+<meta name="title" content="TitanX Robotics">
 <meta name="description" content="TitanX Robotics - Robotics projects, events, drone, AI and innovation.">
 <meta name="keywords" content="TitanX Robotics, robot car, drone, robotics India, AI robotics">
 <meta name="author" content="TitanX Robotics">
 
-<!-- 🔥 Google Verification -->
 <meta name="google-site-verification" content="HkwjlMMdeEijj6HjbqJPLrbamvcVRtSs6hyKs9wCjwo" />
 
 <title>TitanX Robotics | Official Website</title>
-  <style>
-    body {
-      background: #000;
-      color: white;
-      text-align: center;
-      font-family: Arial;
-      padding-top: 80px;
-    }
 
-    .logo {
-      width: 200px;
-      margin-bottom: 20px;
-    }
+<style>
+body {
+  background: #000;
+  color: white;
+  text-align: center;
+  font-family: Arial;
+  padding-top: 80px;
+}
 
-    h1 {
-      font-size: 40px;
-      color: cyan;
-      margin: 10px;
-    }
+/* 🔥 LOADER */
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  z-index: 9999;
+}
 
-    button {
-      margin-top: 30px;
-      padding: 15px 30px;
-      font-size: 18px;
-      background: cyan;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
+.loader-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 
-    button:hover {
-      box-shadow: 0 0 20px cyan;
-    }
-  </style>
+.loader-logo {
+  width: 120px;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 32px;
+  letter-spacing: 6px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.loading-text {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.loading-bar {
+  width: 300px;
+  height: 3px;
+  background: #ddd;
+}
+
+.progress {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4f46e5, #06b6d4);
+}
+
+.fade-out {
+  opacity: 0;
+  transition: 1s;
+  pointer-events: none;
+}
+
+/* 🔥 MAIN CONTENT */
+.main-content {
+  display: none;
+}
+
+.logo {
+  width: 200px;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 40px;
+  color: cyan;
+}
+
+button {
+  margin-top: 30px;
+  padding: 15px 30px;
+  font-size: 18px;
+  background: cyan;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  box-shadow: 0 0 20px cyan;
+}
+</style>
 </head>
 
 <body>
 
-<!-- 🔥 Instagram Fix Script -->
+<!-- 🔥 LOADER -->
+<div id="loader">
+  <div class="loader-container">
+    <img src="photo1.jpeg" class="loader-logo">
+    <div class="title">TITANX ROBOTICS</div>
+    <div class="loading-text">INITIALIZING ASSETS...</div>
+    <div class="loading-bar">
+      <div class="progress" id="progress"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 🔥 MAIN CONTENT -->
+<div class="main-content" id="mainContent">
+
 <script>
 var ua = navigator.userAgent || navigator.vendor || window.opera;
 
 if (/Instagram/i.test(ua)) {
   window.location.href = "intent://titanx-robotics-official.netlify.app/#Intent;scheme=https;package=com.android.chrome;end";
 
-  // fallback (jodi intent kaaj na kore)
   setTimeout(function () {
     window.location.href = "https://titanx-robotics-official.netlify.app";
   }, 1500);
 }
 </script>
 
-<!-- 🔥 LOGO IMAGE -->
 <img src="photo1.jpeg" class="logo">
 
 <h1>TitanX Robotics</h1>
@@ -70,6 +147,32 @@ if (/Instagram/i.test(ua)) {
 
 <button id="loginBtn">Login with Google</button>
 
+</div>
+
+<!-- 🔥 LOADER SCRIPT -->
+<script>
+let progress = document.getElementById("progress");
+let width = 0;
+
+let interval = setInterval(() => {
+  if (width >= 100) {
+    clearInterval(interval);
+
+    document.getElementById("loader").classList.add("fade-out");
+
+    setTimeout(() => {
+      document.getElementById("loader").style.display = "none";
+      document.getElementById("mainContent").style.display = "block";
+    }, 1000);
+
+  } else {
+    width++;
+    progress.style.width = width + "%";
+  }
+}, 25);
+</script>
+
+<!-- 🔥 FIREBASE LOGIN -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
