@@ -156,12 +156,11 @@ onAuthStateChanged(auth, (user) => {
 <script>
 const music = document.getElementById("bgmusic");
 
-function startMusic() {
+// 🔥 jekono jaygay click korlei music start
+document.addEventListener("click", () => {
+  music.volume = 0.4;
   music.play().catch(() => {});
-  document.removeEventListener("click", startMusic);
-}
-
-document.addEventListener("click", startMusic);
+}, { once: true });
 </script>
 
 <!-- 🤖 LOGO -->
