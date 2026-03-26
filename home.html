@@ -76,6 +76,17 @@
       transform: translateY(-10px) scale(1.05);
       box-shadow: 0 0 25px cyan;
     }
+     .card img {
+      width: 80px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+      transition: 0.3s;
+    }
+
+    .card:hover img {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 15px cyan);
+    }
 
     /* 🔥 REGISTER BUTTON */
     .regbtn {
@@ -199,9 +210,13 @@ document.addEventListener("click", () => {
   <!-- 📝 REGISTER -->
   <h2>Join TitanX Robotics</h2>
 
-  <button class="regbtn" onclick="window.location.href='register.html'">
-    🚀 Register Now
-  </button>
+<button class="regbtn" onclick="window.location.href='members.html'">
+  👥 Our Active Members
+</button>
+
+<button class="regbtn" onclick="window.location.href='register.html'">
+  🚀 Register Now
+</button>
 </div>
 
 <!-- 🌐 SOCIAL MEDIA -->
