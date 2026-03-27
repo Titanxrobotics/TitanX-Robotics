@@ -1,0 +1,79 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <Servo.h>
+
+// LCD setup (change 0x27 if needed)
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// Ultrasonic pins
+const int trigPin = 9;
+const int echoPin = 10;
+
+// Servo
+Servo gateServo;
+const int servoPin = 6;
+
+// Distance variable
+long duration;
+int distance;
+
+void setup() {
+  lcd.init();
+  lcd.backlight();
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  gateServo.attach(servoPin);
+  gateServo.write(0); // Gate closed
+
+  lcd.setCursor(0, 0);
+  lcd.print("System Ready");
+  delay(2000);
+  lcd.clear();
+}
+
+void loop() {
+
+  // Ultrasonic trigger
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+
+  distance = duration * 0.034 / 2;
+
+  // Condition
+  if (distance > 0 && distance < 15) {
+    // Vehicle detected
+
+    gateServo.write(90); // Open gate
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Gate Open");
+
+    lcd.setCursor(0, 1);
+    lcd.print("Welcome");
+
+    delay(1000);
+  } 
+  else {
+    // No vehicle
+
+    gateServo.write(0); // Close gate
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Gate Close");
+
+    lcd.setCursor(0, 1);
+    lcd.print("No Vehicle");
+
+    delay(1000);
+  }
+}
