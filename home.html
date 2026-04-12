@@ -11,6 +11,20 @@
       text-align: center;
       font-family: 'Poppins', sans-serif;
       overflow-x: hidden;
+      cursor: none; /* 🔥 default cursor hide */
+    }
+    /* 🔥 CUSTOM CURSOR */
+    .custom-cursor {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #4f46e5;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      box-shadow: 0 0 10px #4f46e5, 0 0 20px #06b6d4;
+      transition: transform 0.1s ease;
     }
 
     /* 🌌 Animated Background */
@@ -137,6 +151,9 @@
 </head>
 
 <body>
+  <!-- 🔥 CUSTOM CURSOR -->
+<div class="custom-cursor"></div>
+
 
 <!-- 🔐 Login check -->
 <script type="module">
@@ -172,6 +189,21 @@ document.addEventListener("click", () => {
   music.volume = 0.4;
   music.play().catch(() => {});
 }, { once: true });
+/* 🔥 CURSOR MOVE */
+const cursor = document.querySelector(".custom-cursor");
+
+document.addEventListener("mousemove", (e) => {
+  cursor.style.left = e.clientX + "px";
+  cursor.style.top = e.clientY + "px";
+});
+
+/* 🔥 CLICK EFFECT */
+document.addEventListener("click", () => {
+  cursor.style.transform = "translate(-50%, -50%) scale(1.5)";
+  setTimeout(() => {
+    cursor.style.transform = "translate(-50%, -50%) scale(1)";
+  }, 100);
+});
 </script>
 
 <!-- 🤖 LOGO -->
