@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Admin Dashboard</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      text-align: center;
+      font-family: Arial;
+    }
+
+    /* 🔥 Stylish Heading */
+    h1 {
+      font-size: 40px;
+      margin-top: 20px;
+      background: linear-gradient(90deg, cyan, #4f46e5, cyan);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glow 2s infinite alternate;
+      letter-spacing: 2px;
+    }
+
+    @keyframes glow {
+      0% {
+        text-shadow: 0 0 5px cyan, 0 0 10px cyan;
+      }
+      100% {
+        text-shadow: 0 0 20px #4f46e5, 0 0 40px cyan;
+      }
+    }
+
+    button {
+      margin: 5px;
+      padding: 8px 15px;
+      background: cyan;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      box-shadow: 0 0 15px cyan;
+      transform: scale(1.05);
+    }
+
+    textarea {
+      width: 90%;
+      height: 350px;
+      background: #111;
+      color: white;
+      border-radius: 10px;
+      padding: 10px;
+      border: 1px solid cyan;
+      box-shadow: 0 0 10px rgba(0,255,255,0.3);
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>📂 File Manager</h1>
+
+  <div id="files"></div>
+
+  <br>
+
+  <textarea id="editor"></textarea><br>
+
+  <button onclick="save()">💾 Save</button>
+  <button onclick="push()">🚀 Push to GitHub</button>
+
+  <script>
+
+    const BASE = "http://localhost:3000";
+    let currentFile = "";
+
+    /* 🔐 Protect dashboard */
+    if (localStorage.getItem("admin") !== "true") {
+      window.location = "index.html";
+    }
+
+    /* 📂 load files */
+    fetch(BASE + "/files")
+      .then(res => res.json())
+      .then(files => {
+
+        console.log("FILES:", files);
+
+        const div = document.getElementById("files");
+
+        files.forEach(file => {
+
+          const clean = file.toLowerCase().trim();
+
+          if (
+            !file.startsWith(".") &&
+            !file.includes("node_modules") &&
+            (clean.endsWith(".html") ||
+             clean.endsWith(".css") ||
+             clean.endsWith(".js"))
+          ) {
+
+            const btn = document.createElement("button");
+            btn.innerText = file;
+            btn.onclick = () => openFile(file);
+            div.appendChild(btn);
+
+          }
+
+        });
+
+      })
+      .catch(err => {
+        console.error("Error loading files:", err);
+      });
+
+    /* 📖 open file */
+    function openFile(name) {
+      currentFile = name;
+
+      fetch(BASE + "/file/" + name)
+        .then(res => res.text())
+        .then(data => {
+          document.getElementById("editor").value = data;
+        })
+        .catch(err => alert("Error opening file"));
+    }
+
+    /* 💾 save */
+    function save() {
+
+      if (!currentFile) {
+        alert("⚠️ Select a file first!");
+        return;
+      }
+
+      fetch(BASE + "/save/" + currentFile, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: document.getElementById("editor").value
+        })
+      })
+      .then(() => alert("✅ Saved locally"))
+      .catch(() => alert("❌ Save failed"));
+    }
+
+    /* 🚀 push to github */
+    function push() {
+      fetch(BASE + "/push", { method: "POST" })
+        .then(() => alert("🚀 Pushed to GitHub & Live Updated!"))
+        .catch(() => alert("❌ Push failed"));
+    }
+
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Admin Login - TitanX</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle, #050505, #000);
+      color: white;
+      text-align: center;
+      font-family: Arial;
+      cursor: none;
+    }
+
+    .custom-cursor {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #4f46e5;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      box-shadow: 0 0 10px #4f46e5, 0 0 20px #06b6d4;
+    }
+
+    .logo {
+      width: 180px;
+      margin-top: 30px;
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 20px cyan);
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-15px);
+      }
+
+      100% {
+        transform: translateY(0px);
+      }
+    }
+
+    .box {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 30px;
+      margin: 30px auto;
+      width: 300px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+    }
+
+    /* 🔥 FIXED INPUT SIZE */
+    input {
+      display: block;
+      margin: 12px auto;
+      padding: 12px;
+      width: 100%;
+      border-radius: 8px;
+      border: none;
+      background: #111;
+      color: white;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      border: 2px solid cyan;
+      box-shadow: 0 0 15px cyan;
+    }
+
+    .password-box {
+      position: relative;
+      width: 100%;
+      margin: 12px auto;
+    }
+
+    .password-box input {
+      padding-right: 40px;
+    }
+
+    .toggle-eye {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    button {
+      padding: 12px 25px;
+      background: cyan;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      box-shadow: 0 0 20px cyan;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="custom-cursor"></div>
+
+  <img src="photo1.jpeg" class="logo">
+
+  <h1>🔐 Admin Login</h1>
+
+  <div class="box">
+    <input type="text" id="user" placeholder="Username">
+
+    <div class="password-box">
+      <input type="password" id="pass" placeholder="Password">
+      <span class="toggle-eye" onclick="togglePassword()">👁️</span>
+    </div>
+
+    <button onclick="login()">Login</button>
+  </div>
+
+  <script>
+    function login() {
+      const userValue = document.getElementById("user").value;
+      const passValue = document.getElementById("pass").value;
+
+      if (userValue === "TitanX Robotics" && passValue === "titan##001") {
+        localStorage.setItem("admin", "true");
+        window.location = "dashboard.html";
+      } else {
+        alert("Wrong login");
+      }
+    }
+
+    function togglePassword() {
+      const pass = document.getElementById("pass");
+      const eye = document.querySelector(".toggle-eye");
+
+      if (pass.type === "password") {
+        pass.type = "text";
+        eye.innerHTML = "🙈";
+      } else {
+        pass.type = "password";
+        eye.innerHTML = "👁️";
+      }
+    }
+
+    const cursor = document.querySelector(".custom-cursor");
+    document.addEventListener("mousemove", (e) => {
+      cursor.style.left = e.clientX + "px";
+      cursor.style.top = e.clientY + "px";
+    });
+  </script>
+
+</body>
+
+</html>
