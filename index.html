@@ -1,282 +1,461 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="title" content="TitanX Robotics">
-<meta name="description" content="TitanX Robotics - Robotics projects, events, drone, AI and innovation.">
-<meta name="keywords" content="TitanX Robotics, robot car, drone, robotics India, AI robotics">
-<meta name="author" content="TitanX Robotics">
+  <meta name="title" content="TitanX Robotics | Official Cyber Portal">
+  <meta name="description" content="TitanX Robotics - Next-generation robotics projects, autonomous drones, AI systems, and student engineering innovations.">
+  <meta name="keywords" content="TitanX Robotics, robot car, autonomous drone, AI robotics, engineering, smart traffic system, India">
+  <meta name="author" content="TitanX Robotics">
 
-<meta name="google-site-verification" content="7k9X_xbFeKPnKrnkgpyNrTZIR07NN0IsCNgOKBU7kb4" />
-<title>TitanX Robotics | Official Website</title>
-<link rel="icon" type="image/png" href="favicon.png">
-<meta property="og:image" content="photo1.jpeg">
-<style>
-body {
-  background: #000;
-  color: white;
-  text-align: center;
-  font-family: Arial;
-  padding-top: 80px;
- cursor: none; /* 🔥 default cursor hide */
-}
+  <meta name="google-site-verification" content="7k9X_xbFeKPnKrnkgpyNrTZIR07NN0IsCNgOKBU7kb4" />
+  <title>TitanX Robotics | Cyber Portal</title>
+  
+  <link rel="icon" type="image/png" href="favicon.png">
+  <meta property="og:image" content="photo1.jpeg">
 
-/* 🔥 CUSTOM CURSOR */
-.custom-cursor {
-  position: fixed;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #4f46e5;
-  border-radius: 50%;
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-  box-shadow: 0 0 10px #4f46e5, 0 0 20px #06b6d4;
-  transition: transform 0.1s ease;
-}
-/* 🔥 LOADER */
-#loader {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #ffffff;
-  overflow: hidden;
-  z-index: 9999;
-}
+  <!-- Core Design System -->
+  <link rel="stylesheet" href="style.css">
 
-/* Soft animated waves */
-#loader::before {
-  content: "";
-  position: absolute;
-  width: 200%;
-  height: 200%;
-  top: -50%;
-  left: -50%;
-  background: radial-gradient(circle at center, rgba(99,102,241,0.12), transparent 60%);
-  animation: moveWave 8s linear infinite;
-}
+  <style>
+    /* Specific Landing Page Styles */
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
 
-/* Second layer */
-#loader::after {
-  content: "";
-  position: absolute;
-  width: 200%;
-  height: 200%;
-  top: -50%;
-  left: -50%;
-  background: radial-gradient(circle at center, rgba(6,182,212,0.12), transparent 60%);
-  animation: moveWaveReverse 10s linear infinite;
-}
+    /* 🔥 DIAGNOSTIC BOOT LOADER */
+    #loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #02040a;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 999999;
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s ease;
+    }
 
-@keyframes moveWave {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+    .loader-hud {
+      position: relative;
+      width: 160px;
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
 
-@keyframes moveWaveReverse {
-  0% { transform: rotate(360deg); }
-  100% { transform: rotate(0deg); }
-}
-.loader-container {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
+    .loader-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 2px dashed rgba(0, 240, 255, 0.4);
+      border-radius: 50%;
+      animation: spinRing 6s linear infinite;
+    }
 
-.loader-logo {
-  width: 120px;
-  margin-bottom: 20px;
-  animation: floatLogo 3s ease-in-out infinite;
-}
+    .loader-ring-inner {
+      position: absolute;
+      width: 80%;
+      height: 80%;
+      border: 2px solid transparent;
+      border-top-color: var(--neon-purple);
+      border-bottom-color: var(--neon-cyan);
+      border-radius: 50%;
+      animation: spinRingRev 3s linear infinite;
+    }
 
-.title {
-  font-size: 32px;
-  letter-spacing: 6px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  background: linear-gradient(90deg, #4f46e5, #06b6d4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+    @keyframes spinRing {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
-.loading-text {
-  font-size: 12px;
-  letter-spacing: 3px;
-  color: #555;
-  margin-bottom: 10px;
-}
+    @keyframes spinRingRev {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(-360deg); }
+    }
 
-.loading-bar {
-  width: 300px;
-  height: 3px;
-  background: #ddd;
-}
+    .loader-logo-img {
+      width: 85px;
+      height: 85px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--neon-cyan);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+      z-index: 2;
+    }
 
-.progress {
-  height: 100%;
-  width: 0%;
-  background: linear-gradient(90deg, #4f46e5, #06b6d4);
-}
+    .loader-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: 5px;
+      margin-bottom: 12px;
+      background: linear-gradient(90deg, #00f0ff, #a855f7, #00f0ff);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shineGrad 3s linear infinite;
+    }
 
-.fade-out {
-  opacity: 0;
-  transition: 1s;
-  pointer-events: none;
-}
+    @keyframes shineGrad {
+      to { background-position: 200% center; }
+    }
 
-/* 🔥 MAIN CONTENT */
-.main-content {
-  display: none;
-}
+    .loader-terminal-text {
+      font-family: 'Rajdhani', monospace;
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: var(--neon-cyan);
+      margin-bottom: 15px;
+      height: 20px;
+      text-transform: uppercase;
+    }
 
-.logo {
-  width: 200px;
-  margin-bottom: 20px;
-}
+    .loader-bar-bg {
+      width: 280px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      position: relative;
+    }
 
-h1 {
-  font-size: 40px;
-  color: cyan;
-}
+    .loader-bar-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #00f0ff, #a855f7);
+      box-shadow: 0 0 10px #00f0ff;
+      transition: width 0.05s ease;
+    }
 
-button {
-  margin-top: 30px;
-  padding: 15px 30px;
-  font-size: 18px;
-  background: cyan;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-}
+    .loader-percent {
+      font-family: var(--font-display);
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
 
-button:hover {
-  box-shadow: 0 0 20px cyan;
-}
-</style>
+    /* 🔥 PORTAL CARD */
+    .portal-container {
+      max-width: 480px;
+      width: 100%;
+      padding: 40px 30px;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+      animation: fadeInPortal 1s ease-out;
+    }
+
+    @keyframes fadeInPortal {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .portal-logo-wrap {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 24px;
+    }
+
+    .portal-logo {
+      width: 130px;
+      height: 130px;
+      border-radius: 24px;
+      object-fit: cover;
+      border: 2px solid var(--neon-cyan);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
+      transition: transform 0.4s ease;
+    }
+
+    .portal-logo-wrap:hover .portal-logo {
+      transform: scale(1.06) rotate(2deg);
+      box-shadow: 0 0 40px rgba(168, 85, 247, 0.6);
+    }
+
+    .portal-title {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+    }
+
+    .portal-tagline {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      text-transform: uppercase;
+    }
+
+    .portal-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .portal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      border: 1px solid rgba(0, 240, 255, 0.5);
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(168, 85, 247, 0.2));
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+      transition: all 0.3s ease;
+    }
+
+    .google-btn img {
+      width: 22px;
+      height: 22px;
+    }
+
+    .google-btn:hover {
+      background: linear-gradient(135deg, var(--neon-cyan), #38bdf8);
+      color: #030712;
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .guest-btn {
+      width: 100%;
+      padding: 13px 20px;
+      border-radius: 12px;
+    }
+
+    .portal-footer-links {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 0.9rem;
+    }
+
+    .portal-footer-link {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-family: var(--font-heading);
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .portal-footer-link:hover {
+      color: var(--neon-cyan);
+    }
+  </style>
 </head>
 
 <body>
-<!-- 🔥 CUSTOM CURSOR -->
-<div class="custom-cursor"></div>
 
-<!-- 🔥 LOADER -->
-<div id="loader">
-  <div class="loader-container">
-    <img src="photo2.jpeg" class="loader-logo">
-    <div class="title">TITANX ROBOTICS</div>
-    <div class="loading-text">INITIALIZING ASSETS...</div>
-    <div class="loading-bar">
-      <div class="progress" id="progress"></div>
+  <!-- 🎯 CUSTOM HIGH-TECH CURSOR -->
+  <div class="custom-cursor-dot" id="cursorDot"></div>
+  <div class="custom-cursor-ring" id="cursorRing"></div>
+
+  <!-- 🎧 UNIVERSAL AUDIO ELEMENT -->
+  <audio id="bgmusic" loop preload="auto">
+    <source src="WhatsApp Audio 2026-08-13 at 2.30.31 AM.mpeg" type="audio/mpeg">
+  </audio>
+
+  <!-- 🎛️ FLOATING AUDIO CONTROLLER WIDGET -->
+  <div class="audio-controller-widget" id="audioWidget" title="Click to Toggle Cyber Soundtrack">
+    <button class="audio-btn paused" id="audioToggleBtn" aria-label="Audio Play/Pause">
+      <span id="audioIcon">▶</span>
+    </button>
+    <div class="audio-equalizer">
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+    </div>
+    <span class="audio-label" id="audioStatusText">AUDIO // TAP TO PLAY</span>
+    <input type="range" class="audio-volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.5" title="Volume Control">
+  </div>
+
+  <!-- 🚀 HIGH-TECH DIAGNOSTIC LOADER -->
+  <div id="loader">
+    <div class="loader-hud">
+      <div class="loader-ring"></div>
+      <div class="loader-ring-inner"></div>
+      <img src="photo2.jpeg" alt="TitanX Core" class="loader-logo-img">
+    </div>
+    <div class="loader-title">TITANX ROBOTICS</div>
+    <div class="loader-terminal-text" id="loaderStatus">INITIALIZING NEURAL SUBSYSTEMS...</div>
+    <div class="loader-bar-bg">
+      <div class="loader-bar-fill" id="loaderProgress"></div>
+    </div>
+    <div class="loader-percent" id="loaderPercent">0%</div>
+  </div>
+
+  <!-- 🌐 MAIN PORTAL CONTAINER -->
+  <div class="cyber-card portal-container corner-decor" id="portalCard">
+    <div class="portal-logo-wrap floating-element">
+      <img src="photo1.jpeg" alt="TitanX Robotics" class="portal-logo">
+    </div>
+
+    <h1 class="portal-title">
+      <span class="text-gradient">TITANX ROBOTICS</span>
+    </h1>
+    <p class="portal-tagline">Advanced Robotics & Autonomous Systems</p>
+
+    <div class="portal-status-pill">
+      <span class="badge badge-emerald">
+        <span class="pulse-dot"></span> SYSTEM ONLINE
+      </span>
+      <span class="badge">SECURE PORTAL</span>
+    </div>
+
+    <div class="portal-actions">
+      <button class="google-btn" id="loginBtn">
+        <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google">
+        <span>Login with Google</span>
+      </button>
+
+      <a href="home.html" class="cyber-btn cyber-btn-ghost guest-btn" id="guestBtn">
+        <span>⚡ Enter as Guest Explorer</span>
+      </a>
+    </div>
+
+    <div class="portal-footer-links">
+      <a href="home.html#events" class="portal-footer-link">Events</a>
+      <a href="members.html" class="portal-footer-link">Team</a>
     </div>
   </div>
-</div>
 
-<!-- 🔥 MAIN CONTENT -->
-<div class="main-content" id="mainContent">
-<script>
-/* 🔥 CURSOR MOVE */
-const cursor = document.querySelector(".custom-cursor");
+  <!-- ⚡ IN-APP BROWSER DETECT -->
+  <script>
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    if (/Instagram/i.test(ua)) {
+      window.location.href = "intent://titanx-robotics.vercel.app/#Intent;scheme=https;package=com.android.chrome;end";
+      setTimeout(() => {
+        window.location.href = "https://titanx-robotics.vercel.app";
+      }, 1500);
+    }
+  </script>
 
-document.addEventListener("mousemove", (e) => {
-  cursor.style.left = e.clientX + "px";
-  cursor.style.top = e.clientY + "px";
-});
+  <!-- 🎵 UNIVERSAL AUDIO ENGINE -->
+  <script src="audio-engine.js"></script>
 
-/* 🔥 CLICK EFFECT */
-document.addEventListener("click", () => {
-  cursor.style.transform = "translate(-50%, -50%) scale(1.5)";
-  setTimeout(() => {
-    cursor.style.transform = "translate(-50%, -50%) scale(1)";
-  }, 100);
-});
-</script>
-<script>
-var ua = navigator.userAgent || navigator.vendor || window.opera;
+  <!-- 🎯 CURSOR & LOADER SCRIPT -->
+  <script>
+    // Custom Cursor
+    const cursorDot = document.getElementById("cursorDot");
+    const cursorRing = document.getElementById("cursorRing");
 
-if (/Instagram/i.test(ua)) {
-  window.location.href = "intent://titanx-robotics.vercel.app/#Intent;scheme=https;package=com.android.chrome;end";
-
-  setTimeout(function () {
-    window.location.href = "https://titanx-robotics.vercel.app";
-  }, 1500);
-}
-</script>
-
-<img src="photo1.jpeg" class="logo">
-
-<h1>TitanX Robotics</h1>
-<p>Login with Google to enter</p>
-
-<button id="loginBtn">Login with Google</button>
-
-</div>
-
-<!-- 🔥 LOADER SCRIPT -->
-<script>
-let progress = document.getElementById("progress");
-let width = 0;
-
-let interval = setInterval(() => {
-  if (width >= 100) {
-    clearInterval(interval);
-
-    document.getElementById("loader").classList.add("fade-out");
-
-    setTimeout(() => {
-  document.getElementById("loader").style.display = "none";
-  document.getElementById("mainContent").style.display = "block";
-
-  // 🔥 MUSIC START
-  const music = document.getElementById("bgmusic");
-  music.volume = 0.4;
-  music.play().catch(() => {});
-
-}, 1000);
-
-  } else {
-    width++;
-    progress.style.width = width + "%";
-  }
-}, 25);
-</script>
-
-<!-- 🔥 FIREBASE LOGIN -->
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyArTaM2XXi8nSZCykIQi-yeq9zbb4sVauc",
-  authDomain: "titanx-robotics.firebaseapp.com",
-  projectId: "titanx-robotics",
-  storageBucket: "titanx-robotics.firebasestorage.app",
-  messagingSenderId: "224811698997",
-  appId: "1:224811698997:web:49a7d677b11ac3476cda7c",
-  measurementId: "G-KF51CNBSCE"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-
-document.getElementById("loginBtn").addEventListener("click", () => {
-  signInWithPopup(auth, provider)
-    .then(() => {
-      window.location.href = "home.html";
-    })
-    .catch((error) => {
-      alert("Login Failed ❌");
-      console.log(error);
+    document.addEventListener("mousemove", (e) => {
+      cursorDot.style.left = e.clientX + "px";
+      cursorDot.style.top = e.clientY + "px";
+      cursorRing.style.left = e.clientX + "px";
+      cursorRing.style.top = e.clientY + "px";
     });
-});
 
-</script>
+    document.querySelectorAll("a, button, input, .cyber-card").forEach(elem => {
+      elem.addEventListener("mouseenter", () => cursorRing.classList.add("active"));
+      elem.addEventListener("mouseleave", () => cursorRing.classList.remove("active"));
+    });
+
+    // Boot Diagnostic Loader Sequence
+    const loader = document.getElementById("loader");
+    const loaderProgress = document.getElementById("loaderProgress");
+    const loaderPercent = document.getElementById("loaderPercent");
+    const loaderStatus = document.getElementById("loaderStatus");
+
+    const diagnosticSteps = [
+      { at: 15, msg: "SYNCHRONIZING CORE TELEMETRY..." },
+      { at: 35, msg: "CALIBRATING QUANTUM SENSORS..." },
+      { at: 60, msg: "CONNECTING TO TITANX MESH..." },
+      { at: 85, msg: "ARMING AUTONOMOUS PROTOCOLS..." },
+      { at: 100, msg: "SYSTEM READY. LAUNCHING..." }
+    ];
+
+    let currentProgress = 0;
+    const loadInterval = setInterval(() => {
+      currentProgress += 2;
+
+      for (let step of diagnosticSteps) {
+        if (currentProgress >= step.at) {
+          loaderStatus.textContent = step.msg;
+        }
+      }
+
+      loaderProgress.style.width = currentProgress + "%";
+      loaderPercent.textContent = currentProgress + "%";
+
+      if (currentProgress >= 100) {
+        clearInterval(loadInterval);
+        setTimeout(() => {
+          loader.style.opacity = "0";
+          loader.style.pointerEvents = "none";
+          setTimeout(() => {
+            loader.style.display = "none";
+            if (window.TitanXAudio) {
+              window.TitanXAudio.play();
+            }
+          }, 800);
+        }, 300);
+      }
+    }, 25);
+  </script>
+
+  <!-- 🔥 FIREBASE AUTH -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyArTaM2XXi8nSZCykIQi-yeq9zbb4sVauc",
+      authDomain: "titanx-robotics.firebaseapp.com",
+      projectId: "titanx-robotics",
+      storageBucket: "titanx-robotics.firebasestorage.app",
+      messagingSenderId: "224811698997",
+      appId: "1:224811698997:web:49a7d677b11ac3476cda7c",
+      measurementId: "G-KF51CNBSCE"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      signInWithPopup(auth, provider)
+        .then(() => {
+          sessionStorage.setItem("titanx_audio_user_paused", "false");
+          window.location.href = "home.html";
+        })
+        .catch((error) => {
+          console.error("Firebase Login Error:", error);
+          alert("Login Encountered an Issue: " + (error.message || "Please check popup settings"));
+        });
+    });
+  </script>
 
 </body>
 </html>

@@ -1,186 +1,316 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Register - TitanX Robotics</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadet Registration | TitanX Robotics</title>
+
+  <link rel="icon" type="image/png" href="favicon.png">
+  
+  <!-- Core Design System -->
+  <link rel="stylesheet" href="style.css">
 
   <style>
     body {
-      margin: 0;
-      background: radial-gradient(circle, #050505, #000);
-      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 100px 20px 40px;
+    }
+
+    .reg-container {
+      max-width: 500px;
+      width: 100%;
+      padding: 36px 30px;
+      border-radius: 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .reg-header {
       text-align: center;
-      font-family: Arial;
-      cursor: none; /* 🔥 default cursor hide */
+      margin-bottom: 28px;
     }
-     /* 🔥 CUSTOM CURSOR */
-    .custom-cursor {
-      position: fixed;
-      width: 20px;
-      height: 20px;
-      border: 2px solid #4f46e5;
+
+    .reg-logo {
+      width: 90px;
+      height: 90px;
       border-radius: 50%;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      box-shadow: 0 0 10px #4f46e5, 0 0 20px #06b6d4;
-      transition: transform 0.1s ease;
+      object-fit: cover;
+      border: 2px solid var(--neon-cyan);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
+      margin-bottom: 16px;
     }
 
-    .logo {
-      width: 200px;
-      margin-top: 30px;
-      animation: float 3s ease-in-out infinite;
-      filter: drop-shadow(0 0 20px cyan);
+    .reg-title {
+      font-size: 1.8rem;
+      margin-bottom: 6px;
     }
 
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-15px); }
-      100% { transform: translateY(0px); }
+    .reg-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
     }
 
-    h1 {
-      color: cyan;
-      margin-top: 10px;
+    .form-group {
+      margin-bottom: 18px;
+      text-align: left;
     }
 
-    .box {
-      background: rgba(255,255,255,0.05);
-      padding: 30px;
-      margin: 30px auto;
-      width: 300px;
-      border-radius: 15px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 20px rgba(0,255,255,0.2);
-    }
-
-    input {
+    .form-label {
       display: block;
-      margin: 12px auto;
-      padding: 12px;
-      width: 90%;
-      border-radius: 8px;
-      border: 2px solid transparent;
-      outline: none;
-      background: #111;
-      color: white;
-      transition: 0.3s;
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
     }
 
-    input:focus {
-      border: 2px solid cyan;
-      box-shadow: 0 0 15px cyan, 0 0 30px cyan;
-      transform: scale(1.03);
+    .input-wrapper {
+      position: relative;
     }
 
-    button {
-      margin-top: 15px;
-      padding: 12px 25px;
-      background: cyan;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
       font-size: 16px;
-      transition: 0.3s;
+      color: var(--neon-cyan);
+      pointer-events: none;
     }
 
-    button:hover {
-      box-shadow: 0 0 15px cyan, 0 0 30px cyan, 0 0 50px cyan;
-      transform: scale(1.05);
+    .reg-container input, .reg-container select {
+      padding-left: 42px;
+    }
+
+    select.cyber-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300f0ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 16px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 1.1rem;
+      margin-top: 10px;
+      border-radius: 12px;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--text-dim);
+      font-family: var(--font-heading);
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--neon-cyan);
     }
   </style>
 </head>
 
 <body>
-<!-- 🔥 CUSTOM CURSOR -->
-<div class="custom-cursor"></div>
-<img src="photo1.jpeg" class="logo">
 
-<h1>Register - TitanX Robotics</h1>
+  <!-- 🎯 CUSTOM HIGH-TECH CURSOR -->
+  <div class="custom-cursor-dot" id="cursorDot"></div>
+  <div class="custom-cursor-ring" id="cursorRing"></div>
 
-<div class="box">
+  <!-- 🎧 UNIVERSAL AUDIO ELEMENT -->
+  <audio id="bgmusic" loop preload="auto">
+    <source src="audio1.mp3" type="audio/mpeg">
+    <source src="audio1.mpeg" type="audio/mpeg">
+  </audio>
 
-<input type="text" id="name" placeholder="Your Name">
-<input type="email" id="email" placeholder="Your Email">
-<input type="text" id="phone" placeholder="Phone Number">
+  <!-- 🎛️ FLOATING AUDIO CONTROLLER WIDGET -->
+  <div class="audio-controller-widget" id="audioWidget" title="Click to Toggle Cyber Soundtrack">
+    <button class="audio-btn paused" id="audioToggleBtn" aria-label="Audio Play/Pause">
+      <span id="audioIcon">▶</span>
+    </button>
+    <div class="audio-equalizer">
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+    </div>
+    <span class="audio-label" id="audioStatusText">AUDIO // TAP TO PLAY</span>
+    <input type="range" class="audio-volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.5" title="Volume Control">
+  </div>
 
-<button id="btn" onclick="register()">Submit</button>
+  <!-- 🧭 CYBER HUD NAVBAR -->
+  <header>
+    <nav class="titan-navbar" aria-label="Main Navigation">
+      <a href="home.html" class="titan-nav-brand">
+        <img src="photo1.jpeg" alt="TitanX Logo">
+        <span class="titan-nav-title">TITANX ROBOTICS</span>
+      </a>
 
-</div>
+      <ul class="titan-nav-links">
+        <li><a href="home.html" class="titan-nav-link">Home</a></li>
+        <li><a href="home.html#events" class="titan-nav-link">Events</a></li>
+        <li><a href="members.html" class="titan-nav-link">Active Members</a></li>
+        <li><a href="register.html" class="titan-nav-link active">Join Us</a></li>
+      </ul>
 
-<script type="module">
+      <div>
+        <a href="home.html" class="cyber-btn cyber-btn-ghost" style="padding: 8px 16px; font-size: 0.9rem;">
+          ⬅ Back
+        </a>
+      </div>
+    </nav>
+  </header>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+  <!-- 📝 REGISTRATION FORM CARD -->
+  <div class="cyber-card reg-container corner-decor">
+    <div class="reg-header">
+      <img src="photo1.jpeg" alt="TitanX Logo" class="reg-logo floating-element">
+      <h1 class="reg-title">
+        <span class="text-gradient">Join TitanX Robotics</span>
+      </h1>
+      <p class="reg-subtitle">Apply to become a robotics cadet, innovator, or team contributor.</p>
+    </div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyArTaM2XXi8nSZCykIQi-yeq9zbb4sVauc",
-  authDomain: "titanx-robotics.firebaseapp.com",
-  projectId: "titanx-robotics",
-};
+    <form id="regForm" onsubmit="return false;">
+      <div class="form-group">
+        <label class="form-label" for="name">Full Name</label>
+        <div class="input-wrapper">
+          <span class="input-icon">👤</span>
+          <input type="text" id="name" class="cyber-input" placeholder="e.g. Alex Mercer" required>
+        </div>
+      </div>
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address</label>
+        <div class="input-wrapper">
+          <span class="input-icon">✉️</span>
+          <input type="email" id="email" class="cyber-input" placeholder="name@domain.com" required>
+        </div>
+      </div>
 
-window.register = async function() {
+      <div class="form-group">
+        <label class="form-label" for="phone">Phone / WhatsApp</label>
+        <div class="input-wrapper">
+          <span class="input-icon">📱</span>
+          <input type="tel" id="phone" class="cyber-input" placeholder="+91 98765 43210" required>
+        </div>
+      </div>
 
-  const btn = document.getElementById("btn");
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const phone = document.getElementById("phone").value.trim();
+      <div class="form-group">
+        <label class="form-label" for="domain">Primary Interest</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🎯</span>
+          <select id="domain" class="cyber-input">
+            <option value="Autonomous Ground Vehicles & Robot Cars">Autonomous Ground Vehicles & Robot Cars</option>
+            <option value="Drones & Aerial Quadcopters">Drones & Aerial Quadcopters</option>
+            <option value="Embedded Systems & IoT (Arduino/ESP32)">Embedded Systems & IoT (Arduino/ESP32)</option>
+            <option value="Computer Vision & AI Software">Computer Vision & AI Software</option>
+            <option value="Media, Video Production & Design">Media, Video Production & Design</option>
+          </select>
+        </div>
+      </div>
 
-  if (!name || !email || !phone) {
-    alert("⚠️ Please fill all fields!");
-    return;
-  }
+      <button type="button" id="submitBtn" class="cyber-btn submit-btn" onclick="submitRegistration()">
+        <span>🚀 Initialize Registration</span>
+      </button>
+    </form>
 
-  try {
-    btn.innerText = "Submitting...";
-    btn.disabled = true;
+    <div style="text-align: center;">
+      <a href="home.html" class="back-link">⬅ Return to Home Overview</a>
+    </div>
+  </div>
 
-    await addDoc(collection(db, "users"), {
-      name: name,
-      email: email,
-      phone: phone,
-      time: new Date()
+  <!-- 🔥 FIREBASE FIRESTORE MODULE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyArTaM2XXi8nSZCykIQi-yeq9zbb4sVauc",
+      authDomain: "titanx-robotics.firebaseapp.com",
+      projectId: "titanx-robotics",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.submitRegistration = async function() {
+      const btn = document.getElementById("submitBtn");
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      const domain = document.getElementById("domain").value;
+
+      if (!name || !email || !phone) {
+        alert("⚠️ Please fill in all required fields!");
+        return;
+      }
+
+      try {
+        btn.innerHTML = "<span>⏳ Transmitting Telemetry...</span>";
+        btn.disabled = true;
+
+        await addDoc(collection(db, "users"), {
+          name: name,
+          email: email,
+          phone: phone,
+          domain: domain,
+          registeredAt: new Date().toISOString()
+        });
+
+        alert("🎉 Registration Confirmed! Welcome to TitanX Robotics.");
+
+        document.getElementById("name").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("phone").value = "";
+
+        window.location.href = "home.html";
+
+      } catch (error) {
+        console.error("Firestore Error:", error);
+        alert("❌ Transmit failed! Please verify internet connection or try again.");
+      } finally {
+        btn.innerHTML = "<span>🚀 Initialize Registration</span>";
+        btn.disabled = false;
+      }
+    };
+  </script>
+
+  <!-- 🎵 UNIVERSAL AUDIO ENGINE -->
+  <script src="audio-engine.js"></script>
+
+  <!-- 🎯 CURSOR SCRIPT -->
+  <script>
+    const cursorDot = document.getElementById("cursorDot");
+    const cursorRing = document.getElementById("cursorRing");
+
+    document.addEventListener("mousemove", (e) => {
+      cursorDot.style.left = e.clientX + "px";
+      cursorDot.style.top = e.clientY + "px";
+      cursorRing.style.left = e.clientX + "px";
+      cursorRing.style.top = e.clientY + "px";
     });
 
-    alert("🎉 Registration Successful!");
-
-    document.getElementById("name").value = "";
-    document.getElementById("email").value = "";
-    document.getElementById("phone").value = "";
-
-    window.location.href = "home.html";
-
-  } catch (error) {
-    console.error(error);
-    alert("❌ Failed! Check internet or try again.");
-  } finally {
-    btn.innerText = "Submit";
-    btn.disabled = false;
-  }
-};
-
-</script>
-
-<!-- 🔥 CURSOR SCRIPT -->
-<script>
-const cursor = document.querySelector(".custom-cursor");
-
-document.addEventListener("mousemove", (e) => {
-  cursor.style.left = e.clientX + "px";
-  cursor.style.top = e.clientY + "px";
-});
-
-/* 🔥 CLICK EFFECT */
-document.addEventListener("click", () => {
-  cursor.style.transform = "translate(-50%, -50%) scale(1.5)";
-  setTimeout(() => {
-    cursor.style.transform = "translate(-50%, -50%) scale(1)";
-  }, 100);
-});
-</script>
+    document.querySelectorAll("a, button, input, select, .cyber-card").forEach(elem => {
+      elem.addEventListener("mouseenter", () => cursorRing.classList.add("active"));
+      elem.addEventListener("mouseleave", () => cursorRing.classList.remove("active"));
+    });
+  </script>
 
 </body>
 </html>
