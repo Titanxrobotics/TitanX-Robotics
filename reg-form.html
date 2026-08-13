@@ -1,0 +1,309 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apply Now — TitanX Robotics</title>
+  <meta name="description" content="Fill out the TitanX Robotics cadet application form. All skill levels welcome.">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="reg-style.css">
+  <style>
+    body { padding: 100px 20px 60px; }
+    .form-container {
+      max-width: 620px; margin: 0 auto;
+      position: relative; z-index: 1;
+    }
+    .form-header { text-align: center; margin-bottom: 36px; }
+    .form-logo {
+      width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
+      border: 2px solid var(--nebula-purple);
+      box-shadow: var(--glow-purple); margin-bottom: 16px;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .form-title { font-family: var(--font-display); font-size: clamp(1.6rem,4vw,2.2rem); letter-spacing: 2px; margin-bottom: 8px; }
+    .form-subtitle { color: var(--text-mid); font-size: 0.95rem; }
+    .form-card { padding: 36px 32px; }
+    .section-label {
+      font-family: var(--font-display); font-size: 0.7rem;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--nebula-purple); margin: 26px 0 18px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-label::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, rgba(124,58,237,0.4), transparent);
+    }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width:520px){ .row-2 { grid-template-columns: 1fr; } }
+    .submit-wrap { margin-top: 28px; text-align: center; }
+    .submit-btn { width: 100%; justify-content: center; padding: 15px; font-size: 0.9rem; border-radius: 14px; }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .back-link {
+      display: inline-block; margin-top: 18px;
+      color: var(--text-dim); font-size: 0.88rem;
+      text-decoration: none; transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--nebula-light); }
+    /* Success screen */
+    .success-screen {
+      display: none; text-align: center; padding: 48px 20px;
+    }
+    .success-screen.show { display: block; }
+    .success-icon { font-size: 4rem; margin-bottom: 16px; animation: popIn 0.5s ease; }
+    @keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+    .success-title { font-family: var(--font-display); font-size: 1.6rem; letter-spacing: 2px; margin-bottom: 10px; }
+    .success-sub { color: var(--text-mid); max-width: 360px; margin: 0 auto 28px; line-height: 1.6; }
+    .progress-bar { height: 4px; background: rgba(124,58,237,0.2); border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--nebula-purple), var(--cosmic-blue)); border-radius: 4px; width: 0; transition: width 0.3s; }
+    .progress-label { font-size: 0.78rem; color: var(--text-dim); margin-bottom: 20px; }
+    .step-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 28px; }
+    .step-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(124,58,237,0.3); transition: background 0.3s; }
+    .step-dot.active { background: var(--nebula-purple); box-shadow: 0 0 8px var(--nebula-purple); }
+  </style>
+</head>
+<body>
+  <canvas id="starCanvas"></canvas>
+  <div class="nebula-bg"></div>
+
+  <!-- Navbar -->
+  <nav class="space-nav" aria-label="Main Navigation">
+    <a href="reg-home.html" class="nav-brand">
+      <img src="photo1.jpeg" alt="TitanX Logo" class="nav-logo">
+      <span class="nav-title">TITANX ROBOTICS</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="reg-home.html" class="nav-link">Home</a></li>
+      <li><a href="reg-form.html" class="nav-link active">Apply Now</a></li>
+      <li><a href="reg-admin.html" class="nav-link">Admin</a></li>
+    </ul>
+  </nav>
+
+  <div class="form-container">
+    <!-- Header -->
+    <div class="form-header">
+      <img src="photo1.jpeg" alt="TitanX" class="form-logo">
+      <h1 class="form-title text-gradient">Cadet Application</h1>
+      <p class="form-subtitle">Complete the form below to apply. We review all applications within 48 hours.</p>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <p class="progress-label" id="progressLabel">Fill in your details to apply</p>
+
+    <!-- Form Card -->
+    <div class="form-card space-card" id="formCard">
+      <form id="appForm" onsubmit="return false;">
+
+        <!-- Personal Info -->
+        <div class="section-label">Personal Information</div>
+        <div class="form-group">
+          <label class="form-label" for="f_name">Full Name *</label>
+          <div class="input-group">
+            <span class="input-icon">&#128100;</span>
+            <input type="text" id="f_name" class="space-input" placeholder="e.g. Sibsankar Maity" required>
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="form-group">
+            <label class="form-label" for="f_email">Email *</label>
+            <div class="input-group">
+              <span class="input-icon">&#9993;&#65039;</span>
+              <input type="email" id="f_email" class="space-input" placeholder="name@email.com" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="f_phone">Phone / WhatsApp *</label>
+            <div class="input-group">
+              <span class="input-icon">&#128241;</span>
+              <input type="tel" id="f_phone" class="space-input" placeholder="+91 98765 43210" required>
+            </div>
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="form-group">
+            <label class="form-label" for="f_age">Age *</label>
+            <div class="input-group">
+              <span class="input-icon">&#127874;</span>
+              <input type="number" id="f_age" class="space-input" placeholder="e.g. 17" min="10" max="30" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="f_gender">Gender</label>
+            <select id="f_gender" class="space-input">
+              <option value="">Prefer not to say</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Education -->
+        <div class="section-label">Education</div>
+        <div class="form-group">
+          <label class="form-label" for="f_school">School / College Name *</label>
+          <div class="input-group">
+            <span class="input-icon">&#127979;</span>
+            <input type="text" id="f_school" class="space-input" placeholder="e.g. DPS Kolkata" required>
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="form-group">
+            <label class="form-label" for="f_class">Class / Year *</label>
+            <div class="input-group">
+              <span class="input-icon">&#128218;</span>
+              <input type="text" id="f_class" class="space-input" placeholder="e.g. Class 11 / 2nd Year" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="f_experience">Experience Level *</label>
+            <select id="f_experience" class="space-input" required>
+              <option value="">Select level...</option>
+              <option value="Beginner">Beginner — Just starting out</option>
+              <option value="Intermediate">Intermediate — Some experience</option>
+              <option value="Advanced">Advanced — Strong skills</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Interests -->
+        <div class="section-label">Interests &amp; Motivation</div>
+        <div class="form-group">
+          <label class="form-label" for="f_domain">Primary Interest *</label>
+          <select id="f_domain" class="space-input" required>
+            <option value="">Choose your domain...</option>
+            <option value="Autonomous Ground Vehicles &amp; Robot Cars">&#128664; Autonomous Ground Vehicles &amp; Robot Cars</option>
+            <option value="Drones &amp; Aerial Quadcopters">&#128641; Drones &amp; Aerial Quadcopters</option>
+            <option value="Embedded Systems &amp; IoT (Arduino/ESP32)">&#9881;&#65039; Embedded Systems &amp; IoT (Arduino/ESP32)</option>
+            <option value="Computer Vision &amp; AI Software">&#129504; Computer Vision &amp; AI Software</option>
+            <option value="Media, Video Production &amp; Design">&#127909; Media, Video Production &amp; Design</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f_why">Why do you want to join TitanX? *</label>
+          <div class="input-group">
+            <span class="input-icon top">&#128172;</span>
+            <textarea id="f_why" class="space-input" placeholder="Tell us about your passion for robotics, what you hope to learn, and what you can contribute to the team..." required style="min-height:120px;"></textarea>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="submit-wrap">
+          <button type="button" class="space-btn btn-primary submit-btn" id="submitBtn" onclick="submitApplication()">
+            &#128640; Submit Application
+          </button>
+          <br>
+          <a href="reg-home.html" class="back-link">&#8592; Back to Home</a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Success Screen -->
+    <div class="success-screen space-card" id="successScreen" style="display:none;">
+      <div class="success-icon">&#127775;</div>
+      <h2 class="success-title text-gradient">Application Received!</h2>
+      <p class="success-sub">Your application has been submitted successfully. Our team will review it and get back to you within 48 hours.</p>
+      <div class="step-dots">
+        <div class="step-dot active"></div>
+        <div class="step-dot"></div>
+        <div class="step-dot"></div>
+      </div>
+      <p class="text-dim" style="font-size:0.82rem;margin-bottom:20px;">Status: <span style="color:#fbbf24;font-weight:600;">Pending Review</span></p>
+      <a href="reg-home.html" class="space-btn btn-ghost">&#8592; Back to Home</a>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyArTaM2XXi8nSZCykIQi-yeq9zbb4sVauc",
+      authDomain: "titanx-robotics.firebaseapp.com",
+      projectId: "titanx-robotics",
+    };
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    function showToast(msg, type) {
+      const t = document.getElementById("toast");
+      t.textContent = msg; t.className = "toast "+(type||"info")+" show";
+      setTimeout(() => t.classList.remove("show"), 3500);
+    }
+
+    // Progress bar
+    const fields = ['f_name','f_email','f_phone','f_age','f_school','f_class','f_experience','f_domain','f_why'];
+    function updateProgress() {
+      const filled = fields.filter(id => document.getElementById(id)?.value?.trim()).length;
+      const pct = Math.round((filled / fields.length) * 100);
+      document.getElementById("progressFill").style.width = pct + "%";
+      document.getElementById("progressLabel").textContent = pct < 100 ? `${filled} of ${fields.length} fields completed` : "Ready to submit!";
+    }
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("input", updateProgress);
+      if (el) el.addEventListener("change", updateProgress);
+    });
+
+    window.submitApplication = async function() {
+      const get = id => document.getElementById(id)?.value?.trim();
+      const name = get("f_name"), email = get("f_email"), phone = get("f_phone"),
+            age = get("f_age"), school = get("f_school"), cls = get("f_class"),
+            exp = get("f_experience"), domain = get("f_domain"), why = get("f_why"),
+            gender = get("f_gender");
+
+      if (!name||!email||!phone||!age||!school||!cls||!exp||!domain||!why) {
+        showToast("Please fill in all required fields.", "error"); return;
+      }
+
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true; btn.textContent = "Submitting...";
+
+      try {
+        await addDoc(collection(db, "registrations"), {
+          name, email, phone, age, gender, school, class: cls,
+          experience: exp, domain, whyJoin: why,
+          status: "pending",
+          registeredAt: new Date().toISOString()
+        });
+
+        document.getElementById("formCard").style.display = "none";
+        const s = document.getElementById("successScreen");
+        s.style.display = "block";
+        s.style.animation = "fadeDown 0.5s ease";
+
+      } catch(e) {
+        console.error(e);
+        showToast("Submission failed. Check internet and try again.", "error");
+        btn.disabled = false; btn.textContent = "Submit Application";
+      }
+    };
+  </script>
+
+  <!-- Stars -->
+  <script>
+    const canvas = document.getElementById("starCanvas");
+    const ctx = canvas.getContext("2d");
+    let W, H, stars = [];
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    function initStars() {
+      stars = [];
+      for (let i = 0; i < 180; i++) {
+        stars.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.3+0.2, a:Math.random(), speed:Math.random()*0.5+0.2, dir:Math.random()>.5?1:-1, color:['#fff','#a78bfa','#93c5fd','#fbbf24'][Math.floor(Math.random()*4)] });
+      }
+    }
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+      stars.forEach(s => { s.a+=s.speed*0.01*s.dir; if(s.a>1||s.a<0)s.dir*=-1; ctx.save(); ctx.globalAlpha=s.a*0.85; ctx.fillStyle=s.color; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); ctx.restore(); });
+      requestAnimationFrame(draw);
+    }
+    window.addEventListener('resize',()=>{resize();initStars();});
+    resize(); initStars(); draw();
+  </script>
+</body>
+</html>

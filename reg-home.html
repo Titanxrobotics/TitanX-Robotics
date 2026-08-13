@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join TitanX Robotics — Registration Portal</title>
+  <meta name="description" content="Apply to join TitanX Robotics — the premier student robotics club. Become a cadet, innovator, or team contributor today.">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="reg-style.css">
+  <style>
+    /* ── Hero ── */
+    .hero {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 100vh; padding: 120px 20px 60px;
+      text-align: center; position: relative; z-index: 1;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(124,58,237,0.12);
+      border: 1px solid rgba(124,58,237,0.3);
+      border-radius: 50px; padding: 6px 18px;
+      font-size: 0.78rem; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--nebula-light);
+      margin-bottom: 28px;
+      animation: fadeDown 0.8s ease both;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 6vw, 4.5rem);
+      font-weight: 900; line-height: 1.1;
+      letter-spacing: -1px; margin-bottom: 24px;
+      animation: fadeDown 0.8s 0.15s ease both;
+    }
+    .hero-sub {
+      max-width: 540px; color: var(--text-mid);
+      font-size: 1.1rem; line-height: 1.7;
+      margin-bottom: 40px;
+      animation: fadeDown 0.8s 0.3s ease both;
+    }
+    .hero-btns {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeDown 0.8s 0.45s ease both;
+    }
+    @keyframes fadeDown {
+      from { opacity:0; transform: translateY(-16px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    /* orbit rings */
+    .orbit-wrap {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      pointer-events: none; z-index: 0;
+    }
+    .orbit {
+      border-radius: 50%;
+      border: 1px solid rgba(124,58,237,0.15);
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      animation: orbitSpin linear infinite;
+    }
+    .orbit-1 { width: 350px; height: 350px; animation-duration: 20s; }
+    .orbit-2 { width: 550px; height: 550px; animation-duration: 35s; animation-direction: reverse; border-color: rgba(59,130,246,0.1); }
+    .orbit-3 { width: 750px; height: 750px; animation-duration: 55s; border-color: rgba(245,158,11,0.07); }
+    .orbit-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+    }
+    .orbit-1 .orbit-dot { background: var(--nebula-purple); box-shadow: 0 0 12px var(--nebula-purple); }
+    .orbit-2 .orbit-dot { background: var(--cosmic-blue); box-shadow: 0 0 12px var(--cosmic-blue); }
+    .orbit-3 .orbit-dot { background: var(--star-gold); box-shadow: 0 0 12px var(--star-gold); }
+    @keyframes orbitSpin { from { transform: translate(-50%,-50%) rotate(0deg); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+    /* ── Features ── */
+    .features {
+      position: relative; z-index: 1;
+      max-width: 900px; margin: 0 auto 80px;
+      padding: 0 20px;
+    }
+    .features-title {
+      font-family: var(--font-display);
+      font-size: 1.8rem; text-align: center;
+      margin-bottom: 40px; letter-spacing: 1px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px,1fr));
+      gap: 20px;
+    }
+    .feat-card {
+      padding: 28px 24px;
+      border-radius: 18px;
+      background: var(--space-card);
+      border: 1px solid rgba(124,58,237,0.18);
+      backdrop-filter: blur(12px);
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    }
+    .feat-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(124,58,237,0.15);
+      border-color: rgba(124,58,237,0.4);
+    }
+    .feat-icon { font-size: 2rem; margin-bottom: 14px; }
+    .feat-title { font-family: var(--font-display); font-size: 0.9rem; letter-spacing: 1.5px; margin-bottom: 8px; color: var(--nebula-light); }
+    .feat-text { color: var(--text-mid); font-size: 0.88rem; line-height: 1.6; }
+
+    /* ── CTA Bottom ── */
+    .cta-bottom {
+      position: relative; z-index: 1;
+      text-align: center; padding: 60px 20px 80px;
+    }
+    .cta-card {
+      display: inline-block; max-width: 600px; width: 100%;
+      padding: 48px 40px; border-radius: 24px;
+      background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(59,130,246,0.1));
+      border: 1px solid rgba(124,58,237,0.3);
+      backdrop-filter: blur(16px);
+    }
+    .cta-title { font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 12px; }
+    .cta-sub { color: var(--text-mid); margin-bottom: 28px; }
+
+    /* ── Footer ── */
+    footer {
+      position: relative; z-index: 1;
+      text-align: center; padding: 20px;
+      color: var(--text-dim); font-size: 0.82rem;
+      border-top: 1px solid rgba(124,58,237,0.1);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="starCanvas"></canvas>
+  <div class="nebula-bg"></div>
+
+  <!-- Orbit Decoration -->
+  <div class="orbit-wrap" aria-hidden="true">
+    <div class="orbit orbit-1"><div class="orbit-dot"></div></div>
+    <div class="orbit orbit-2"><div class="orbit-dot"></div></div>
+    <div class="orbit orbit-3"><div class="orbit-dot"></div></div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="space-nav" aria-label="Main Navigation">
+    <a href="reg-home.html" class="nav-brand">
+      <img src="photo1.jpeg" alt="TitanX Logo" class="nav-logo">
+      <span class="nav-title">TITANX ROBOTICS</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="reg-home.html" class="nav-link active">Home</a></li>
+      <li><a href="reg-form.html" class="nav-link">Apply Now</a></li>
+      <li><a href="reg-admin.html" class="nav-link">Admin</a></li>
+    </ul>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" aria-labelledby="heroTitle">
+    <div class="hero-eyebrow">&#11088; Cadet Recruitment — Open Now</div>
+    <h1 class="hero-title" id="heroTitle">
+      <span class="text-gradient">Launch Your</span><br>
+      Robotics Career
+    </h1>
+    <p class="hero-sub">
+      Join TitanX Robotics — where we build autonomous vehicles, drones, AI systems, and push the boundaries of what's possible. Apply today and become part of something legendary.
+    </p>
+    <div class="hero-btns">
+      <a href="reg-form.html" class="space-btn btn-primary">&#128640; Apply Now</a>
+      <a href="#why-join" class="space-btn btn-ghost">&#8595; Learn More</a>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="why-join" aria-labelledby="featTitle">
+    <h2 class="features-title text-gradient" id="featTitle">Why Join TitanX?</h2>
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon">&#129302;</div>
+        <div class="feat-title">Build Real Robots</div>
+        <div class="feat-text">Work on autonomous ground vehicles, drones, and robotic systems that actually move, think, and compete.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">&#129504;</div>
+        <div class="feat-title">AI &amp; Vision Systems</div>
+        <div class="feat-text">Dive into Computer Vision, machine learning, and embedded AI — skills that define the future of tech.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">&#128736;</div>
+        <div class="feat-title">Hands-On Hardware</div>
+        <div class="feat-text">Program Arduinos, ESP32s, Raspberry Pis and learn embedded systems from the ground up.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">&#127775;</div>
+        <div class="feat-title">Expert Mentorship</div>
+        <div class="feat-text">Learn directly from experienced engineers, developers, and robotics enthusiasts in a collaborative environment.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">&#127942;</div>
+        <div class="feat-title">Compete &amp; Win</div>
+        <div class="feat-text">Represent TitanX in regional and national robotics competitions. Push your limits and rise to the top.</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">&#127760;</div>
+        <div class="feat-title">Build Your Network</div>
+        <div class="feat-text">Connect with like-minded innovators, future entrepreneurs, and industry professionals who share your passion.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Bottom -->
+  <section class="cta-bottom">
+    <div class="cta-card space-card">
+      <h2 class="cta-title text-gradient">Ready to Launch?</h2>
+      <p class="cta-sub">Applications take less than 3 minutes. All skill levels welcome — beginners to experts.</p>
+      <a href="reg-form.html" class="space-btn btn-gold">&#128640; Start Application</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 TitanX Robotics — All rights reserved</p>
+  </footer>
+
+  <!-- Star Canvas Script -->
+  <script>
+    const canvas = document.getElementById("starCanvas");
+    const ctx = canvas.getContext("2d");
+    let W, H, stars = [];
+    function resize() {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    function initStars() {
+      stars = [];
+      for (let i = 0; i < 220; i++) {
+        stars.push({
+          x: Math.random() * W, y: Math.random() * H,
+          r: Math.random() * 1.4 + 0.2,
+          a: Math.random(),
+          speed: Math.random() * 0.6 + 0.2,
+          dir: Math.random() > 0.5 ? 1 : -1,
+          color: ['#fff', '#a78bfa', '#93c5fd', '#fbbf24'][Math.floor(Math.random()*4)]
+        });
+      }
+    }
+    function drawStars() {
+      ctx.clearRect(0, 0, W, H);
+      stars.forEach(s => {
+        s.a += s.speed * 0.012 * s.dir;
+        if (s.a > 1 || s.a < 0) s.dir *= -1;
+        ctx.save();
+        ctx.globalAlpha = s.a * 0.9;
+        ctx.fillStyle = s.color;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+      requestAnimationFrame(drawStars);
+    }
+    window.addEventListener('resize', () => { resize(); initStars(); });
+    resize(); initStars(); drawStars();
+  </script>
+</body>
+</html>

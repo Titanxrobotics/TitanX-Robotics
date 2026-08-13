@@ -1,574 +1,1310 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Our Active Members | TitanX Robotics</title>
 
+
+
   <link rel="icon" type="image/png" href="favicon.png">
+
   
+
   <!-- Core Design System -->
+
   <link rel="stylesheet" href="style.css">
 
+
+
   <style>
+
     .members-page {
+
       padding: 120px 20px 60px;
+
       max-width: 1250px;
+
       margin: 0 auto;
+
     }
+
+
 
     .members-header {
+
       text-align: center;
+
       margin-bottom: 35px;
+
     }
+
+
 
     .members-title {
+
       font-size: clamp(2rem, 5vw, 3.2rem);
+
       margin-bottom: 12px;
+
     }
+
+
 
     .members-subtitle {
+
       color: var(--text-muted);
+
       max-width: 650px;
+
       margin: 0 auto 30px;
+
       font-size: 1.05rem;
+
     }
+
+
 
     /* Filter & Search Bar */
+
     .controls-bar {
+
       display: flex;
+
       flex-wrap: wrap;
+
       justify-content: space-between;
+
       align-items: center;
+
       gap: 16px;
+
       margin-bottom: 40px;
+
       padding: 16px 20px;
+
       border-radius: 14px;
+
     }
+
+
 
     .search-box {
+
       flex: 1;
+
       min-width: 250px;
+
       max-width: 400px;
+
       position: relative;
+
     }
+
+
 
     .search-box input {
+
       padding-left: 40px;
+
     }
+
+
 
     .search-icon {
+
       position: absolute;
+
       left: 14px;
+
       top: 50%;
+
       transform: translateY(-50%);
+
       color: var(--neon-cyan);
+
       font-size: 16px;
+
       pointer-events: none;
+
     }
+
+
 
     .filter-tabs {
+
       display: flex;
+
       flex-wrap: wrap;
+
       gap: 10px;
+
     }
+
+
 
     .filter-tab {
+
       padding: 8px 16px;
+
       border-radius: 8px;
+
       font-family: var(--font-heading);
+
       font-size: 0.95rem;
+
       font-weight: 600;
+
       background: rgba(255, 255, 255, 0.05);
+
       border: 1px solid rgba(255, 255, 255, 0.1);
+
       color: var(--text-muted);
+
       cursor: pointer;
+
       transition: all 0.2s ease;
+
     }
+
+
 
     .filter-tab:hover, .filter-tab.active {
+
       background: rgba(0, 240, 255, 0.15);
+
       border-color: var(--neon-cyan);
+
       color: var(--neon-cyan);
+
       box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+
     }
+
+
 
     /* Member Cards Grid */
+
     .members-grid {
+
       display: grid;
+
       grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+
       gap: 28px;
+
     }
+
+
 
     .member-card {
+
       padding: 30px 24px;
+
       display: flex;
+
       flex-direction: column;
+
       justify-content: space-between;
+
       border-radius: 18px;
+
       position: relative;
+
     }
+
+
 
     .member-top {
+
       display: flex;
+
       align-items: center;
+
       gap: 18px;
+
       margin-bottom: 20px;
+
     }
+
+
 
     .member-avatar-wrap {
+
       position: relative;
+
       flex-shrink: 0;
+
     }
+
+
 
     .member-avatar {
+
       width: 75px;
+
       height: 75px;
+
       border-radius: 50%;
+
       object-fit: cover;
+
       border: 2px solid var(--neon-cyan);
+
       background: #0d1424;
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       font-size: 32px;
+
       box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+
     }
+
+
 
     .member-status-indicator {
+
       position: absolute;
+
       bottom: 2px;
+
       right: 2px;
+
       width: 14px;
+
       height: 14px;
+
       background: var(--neon-emerald);
+
       border: 2px solid #040711;
+
       border-radius: 50%;
+
       box-shadow: 0 0 8px var(--neon-emerald);
+
     }
+
+
 
     .member-info h3 {
+
       font-size: 1.35rem;
+
       margin-bottom: 4px;
+
       color: #fff;
+
     }
+
+
 
     .member-role-badge {
+
       font-family: var(--font-heading);
+
       font-size: 0.85rem;
+
       font-weight: 600;
+
       color: var(--neon-cyan);
+
       line-height: 1.3;
+
     }
+
+
 
     .member-bio {
+
       color: var(--text-muted);
+
       font-size: 0.95rem;
+
       line-height: 1.6;
+
       margin-bottom: 20px;
+
       flex-grow: 1;
+
     }
+
+
 
     .member-contact {
+
       padding: 12px 14px;
+
       background: rgba(0, 0, 0, 0.3);
+
       border-radius: 10px;
+
       border: 1px solid rgba(255, 255, 255, 0.06);
+
       margin-bottom: 16px;
+
       display: flex;
+
       align-items: center;
+
       gap: 10px;
+
       font-size: 0.88rem;
+
       color: #cbd5e1;
+
       word-break: break-all;
+
     }
+
+
 
     .member-contact img {
+
       width: 18px;
+
       height: 18px;
+
       filter: drop-shadow(0 0 6px var(--neon-cyan));
+
       flex-shrink: 0;
+
     }
 
+
+
     .contact-cta {
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       width: 100%;
+
       padding: 10px 16px;
+
       border-radius: 8px;
+
     }
+
   </style>
+
 </head>
+
+
 
 <body>
 
-  <!-- 🎯 CUSTOM HIGH-TECH CURSOR -->
+
+
+  <!-- &#127919; CUSTOM HIGH-TECH CURSOR -->
+
   <div class="custom-cursor-dot" id="cursorDot"></div>
+
   <div class="custom-cursor-ring" id="cursorRing"></div>
 
+
+
+  <!-- &#127911; UNIVERSAL AUDIO ELEMENT -->
+
   <!-- 🎧 UNIVERSAL AUDIO ELEMENT -->
-  <audio id="bgmusic" loop preload="auto">
+  <audio id="bgmusic" loop preload="auto" playsinline>
     <source src="audio1.mp3" type="audio/mpeg">
+    <source src="audio.mpeg" type="audio/mpeg">
     <source src="audio1.mpeg" type="audio/mpeg">
   </audio>
 
-  <!-- 🎛️ FLOATING AUDIO CONTROLLER WIDGET -->
+
+
+  <!-- &#127899;&#65039; FLOATING AUDIO CONTROLLER WIDGET -->
+
   <div class="audio-controller-widget" id="audioWidget" title="Click to Toggle Cyber Soundtrack">
+
     <button class="audio-btn paused" id="audioToggleBtn" aria-label="Audio Play/Pause">
-      <span id="audioIcon">▶</span>
+
+      <span id="audioIcon">&#9654;</span>
+
     </button>
+
     <div class="audio-equalizer">
+
       <div class="eq-bar"></div>
+
       <div class="eq-bar"></div>
+
       <div class="eq-bar"></div>
+
       <div class="eq-bar"></div>
+
     </div>
+
     <span class="audio-label" id="audioStatusText">AUDIO // TAP TO PLAY</span>
+
     <input type="range" class="audio-volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.5" title="Volume Control">
+
   </div>
 
-  <!-- 🧭 CYBER HUD NAVBAR -->
+
+
+  <!-- &#129517; CYBER HUD NAVBAR -->
+
   <header>
+
     <nav class="titan-navbar" aria-label="Main Navigation">
+
       <a href="home.html" class="titan-nav-brand">
+
         <img src="photo1.jpeg" alt="TitanX Logo">
+
         <span class="titan-nav-title">TITANX ROBOTICS</span>
+
       </a>
 
+
+
       <ul class="titan-nav-links">
+
         <li><a href="home.html" class="titan-nav-link">Home</a></li>
+
         <li><a href="home.html#events" class="titan-nav-link">Events</a></li>
+
         <li><a href="home.html#projects" class="titan-nav-link">Projects</a></li>
+
         <li><a href="members.html" class="titan-nav-link active">Active Members</a></li>
+
         <li><a href="register.html" class="titan-nav-link">Join Us</a></li>
+
       </ul>
 
+
+
       <div style="display: flex; gap: 10px; align-items: center;">
+
         <a href="home.html" class="cyber-btn cyber-btn-ghost" style="padding: 8px 16px; font-size: 0.9rem;">
-          ⬅ Back to Home
+
+          &#11013; Back to Home
+
         </a>
+
       </div>
+
+          <!-- Hamburger (mobile) -->
+
+        <button class="mob-menu-btn" id="mobMenuBtn" aria-label="Toggle menu" aria-expanded="false">
+
+          <span></span><span></span><span></span>
+
+        </button>
+
     </nav>
+
   </header>
 
-  <!-- 👥 MEMBERS DIRECTORY -->
+  <!-- Mobile Nav Drawer -->
+
+  <nav class="mob-nav-drawer" id="mobDrawer" aria-label="Mobile Navigation">
+
+    <a href="home.html">Home</a>
+
+    <a href="home.html#events">Events</a>
+
+    <a href="members.html" class="active">Members</a>
+
+    <a href="register.html" class="">Join Us</a>
+
+    <a href="index.html" style="color:var(--neon-cyan);">Login</a>
+
+  </nav>
+
+
+
+  <!-- &#128101; MEMBERS DIRECTORY -->
+
   <main class="members-page">
+
     <div class="members-header">
+
       <div style="margin-bottom: 12px;">
+
         <span class="badge badge-emerald">
+
           <span class="pulse-dot"></span> 6 ACTIVE CORE MEMBERS
+
         </span>
+
       </div>
+
       <h1 class="members-title">
-        <span class="text-gradient">👥 Our Active Members</span>
+
+        <span class="text-gradient">&#128101; Our Active Members</span>
+
       </h1>
+
       <p class="members-subtitle">
+
         Meet the engineers, developers, creative content producers, and hardware innovators who drive TitanX Robotics forward.
+
+      </p>
+
+    </div>
+
+
+
+    <!-- &#128269; Controls: Search & Category Filter -->
+
+    <div class="cyber-card controls-bar">
+
+      <div class="search-box">
+
+        <span class="search-icon">&#128269;</span>
+
+        <input type="text" id="memberSearch" class="cyber-input" placeholder="Search by name, role, or skill..." style="padding-top: 10px; padding-bottom: 10px;">
+
+      </div>
+
+
+
+      <div class="filter-tabs" id="filterTabs">
+
+        <button class="filter-tab active" data-category="all">All Members</button>
+
+        <button class="filter-tab" data-category="leadership">Leadership</button>
+
+        <button class="filter-tab" data-category="hardware">Hardware & Embedded</button>
+
+        <button class="filter-tab" data-category="software">Web & Software</button>
+
+        <button class="filter-tab" data-category="media">Media & Creative</button>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- &#128199; Member Cards Grid -->
+
+    <div class="members-grid" id="membersGrid">
+
+
+
+      <!-- Member 1: Sibsankar Maity -->
+
+      <div class="cyber-card member-card corner-decor" data-category="leadership software">
+
+        <div>
+
+          <div class="member-top">
+
+            <div class="member-avatar-wrap">
+
+              <div class="member-avatar" style="border-color: #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);">&#128081;</div>
+
+              <div class="member-status-indicator"></div>
+
+            </div>
+
+            <div class="member-info">
+
+              <h3 style="color: #00ff88;">Sibsankar Maity</h3>
+
+              <p class="member-role-badge">Team Leader &#8226; Director of Operations &#8226; Web Developer</p>
+
+            </div>
+
+          </div>
+
+
+
+          <p class="member-bio">
+
+            Founder and lead developer of TitanX Robotics. Oversees system architecture, autonomous robotics integration, web platform development, and team strategy.
+
+          </p>
+
+
+
+          <div class="member-contact">
+
+            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
+
+            <span>maitysibsankar56@gmail.com</span>
+
+          </div>
+
+        </div>
+
+
+
+        <div>
+
+          <a href="mailto:maitysibsankar56@gmail.com" class="cyber-btn contact-cta">
+
+            &#9993;&#65039; Contact Sibsankar
+
+          </a>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Member 2: Sayan Pattanayak -->
+
+      <div class="cyber-card member-card corner-decor" data-category="hardware">
+
+        <div>
+
+          <div class="member-top">
+
+            <div class="member-avatar-wrap">
+
+              <div class="member-avatar" style="border-color: #00f0ff; box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);">&#9889;</div>
+
+              <div class="member-status-indicator"></div>
+
+            </div>
+
+            <div class="member-info">
+
+              <h3 style="color: #00f0ff;">Sayan Pattanayak</h3>
+
+              <p class="member-role-badge">Embedded System Developer &#8226; Core Team Member</p>
+
+            </div>
+
+          </div>
+
+
+
+          <p class="member-bio">
+
+            Specialist in embedded microcontrollers (Arduino, ESP32, STM32), motor control circuits, telemetry sensors, and hardware-software firmware architecture.
+
+          </p>
+
+
+
+          <div class="member-contact">
+
+            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
+
+            <span>pattanayaksayan25@gmail.com</span>
+
+          </div>
+
+        </div>
+
+
+
+        <div>
+
+          <a href="mailto:pattanayaksayan25@gmail.com" class="cyber-btn cyber-btn-ghost contact-cta">
+
+            &#9993;&#65039; Contact Sayan
+
+          </a>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Member 3: Arabinda Hatua -->
+
+      <div class="cyber-card member-card corner-decor" data-category="media">
+
+        <div>
+
+          <div class="member-top">
+
+            <div class="member-avatar-wrap">
+
+              <div class="member-avatar" style="border-color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);">&#127916;</div>
+
+              <div class="member-status-indicator"></div>
+
+            </div>
+
+            <div class="member-info">
+
+              <h3 style="color: #a855f7;">Arabinda Hatua</h3>
+
+              <p class="member-role-badge">Video Editor & Content Creator &#8226; Social Media Manager</p>
+
+            </div>
+
+          </div>
+
+
+
+          <p class="member-bio">
+
+            Creative director for TitanX visual productions, project demo videos, digital storyboards, and social media engagement across YouTube and Instagram.
+
+          </p>
+
+
+
+          <div class="member-contact">
+
+            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
+
+            <span>arabindahatua372@gmail.com</span>
+
+          </div>
+
+        </div>
+
+
+
+        <div>
+
+          <a href="mailto:arabindahatua372@gmail.com" class="cyber-btn cyber-btn-purple contact-cta">
+
+            &#9993;&#65039; Contact Arabinda
+
+          </a>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Member 4: Sk Sahil Manik -->
+
+      <div class="cyber-card member-card corner-decor" data-category="software leadership">
+
+        <div>
+
+          <div class="member-top">
+
+            <div class="member-avatar-wrap">
+
+              <div class="member-avatar" style="border-color: #38bdf8; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);">&#128187;</div>
+
+              <div class="member-status-indicator"></div>
+
+            </div>
+
+            <div class="member-info">
+
+              <h3 style="color: #38bdf8;">Sk Sahil Manik</h3>
+
+              <p class="member-role-badge">Website Management &#8226; Tech Guardian & Enthusiast</p>
+
+            </div>
+
+          </div>
+
+
+
+          <p class="member-bio">
+
+            Manages portal infrastructure, site performance, and technology resources. Ensures web uptime and mentors teammates on software workflows.
+
+          </p>
+
+
+
+          <div class="member-contact">
+
+            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
+
+            <span>aspirantsiit40@gmail.com</span>
+
+          </div>
+
+        </div>
+
+
+
+        <div>
+
+          <a href="mailto:aspirantsiit40@gmail.com" class="cyber-btn cyber-btn-ghost contact-cta">
+
+            &#9993;&#65039; Contact Sahil
+
+          </a>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Member 5: Rupam Manna -->
+
+      <div class="cyber-card member-card corner-decor" data-category="hardware media">
+
+        <div>
+
+          <div class="member-top">
+
+            <div class="member-avatar-wrap">
+
+              <div class="member-avatar" style="border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);">&#128248;</div>
+
+              <div class="member-status-indicator"></div>
+
+            </div>
+
+            <div class="member-info">
+
+              <h3 style="color: #f59e0b;">Rupam Manna</h3>
+
+              <p class="member-role-badge">Photographer &#8226; Professional Electrician</p>
+
+            </div>
+
+          </div>
+
+
+
+          <p class="member-bio">
+
+            Captures high-resolution project photography and robotics field coverage, alongside professional electrical wiring, circuit testing, and power installation.
+
+          </p>
+
+
+
+          <div class="member-contact">
+
+            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
+
+            <span>rupammanna194@gmail.com</span>
+
+          </div>
+
+        </div>
+
+
+
+        <div>
+
+          <a href="mailto:rupammanna194@gmail.com" class="cyber-btn cyber-btn-ghost contact-cta">
+
+            &#9993;&#65039; Contact Rupam
+
+          </a>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- Member 6: Amit Maji -->
+
+      <div class="cyber-card member-card corner-decor" data-category="hardware">
+
+        <div>
+
+          <div class="member-top">
+
+            <div class="member-avatar-wrap">
+
+              <div class="member-avatar" style="border-color: #ec4899; box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);">&#128640;</div>
+
+              <div class="member-status-indicator"></div>
+
+            </div>
+
+            <div class="member-info">
+
+              <h3 style="color: #ec4899;">Amit Maji</h3>
+
+              <p class="member-role-badge">Emerging Member &#8226; Robotics Enthusiast</p>
+
+            </div>
+
+          </div>
+
+
+
+          <p class="member-bio">
+
+            Emerging robotics enthusiast contributing to rover assembly, component fabrication, workshop preparations, and collaborative testing.
+
+          </p>
+
+
+
+          <div class="member-contact">
+
+            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
+
+            <span>majia2845@gmail.com</span>
+
+          </div>
+
+        </div>
+
+
+
+        <div>
+
+          <a href="mailto:majia2845@gmail.com" class="cyber-btn cyber-btn-ghost contact-cta">
+
+            &#9993;&#65039; Contact Amit
+
+          </a>
+
+        </div>
+
+      </div>
+
+
+
+    </div>
+
+
+
+    <!-- Back Button -->
+
+    <div style="text-align: center; margin-top: 50px;">
+
+      <a href="home.html" class="cyber-btn">
+
+        <span>&#11013; Return to Home Hub</span>
+
+      </a>
+
+    </div>
+
+  </main>
+
+
+
+  <!-- &#127760; FOOTER -->
+
+  
+  <!-- 📸 TITANX LAB & WORKSHOP SHOWCASE -->
+  <section class="section-container" id="labGallery" style="max-width: 1200px; margin: 60px auto 40px; padding: 0 20px;">
+    <div style="text-align: center; margin-bottom: 35px;">
+      <span class="badge badge-emerald">&#128248; WORKSHOP HIGHLIGHTS</span>
+      <h2 style="font-family: var(--font-display); font-size: clamp(1.6rem, 3.5vw, 2.4rem); margin-top: 10px;">
+        <span class="text-gradient">&#128248; Hardware Lab &amp; Prototyping</span>
+      </h2>
+      <p style="color: var(--text-muted); max-width: 600px; margin: 8px auto 0; font-size: 0.95rem;">
+        Sneak peek inside our development lab &mdash; assembling circuits, testing vehicle tracks, calibrating sensors, and building prototypes.
       </p>
     </div>
 
-    <!-- 🔍 Controls: Search & Category Filter -->
-    <div class="cyber-card controls-bar">
-      <div class="search-box">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="memberSearch" class="cyber-input" placeholder="Search by name, role, or skill..." style="padding-top: 10px; padding-bottom: 10px;">
+    <div class="gallery-grid">
+      <div class="gallery-item" onclick="openLightbox('photo_5.jpeg', 'Integrated Arduino Uno, HC-SR04 Sonar, Servo & LCD Bus')">
+        <div class="gallery-img-wrap">
+          <img src="photo_5.jpeg" alt="Circuit Component Assembly" class="gallery-img" loading="lazy">
+          <div class="gallery-overlay">
+            <span class="gallery-badge">Hardware Wiring</span>
+            <div class="gallery-title">Circuit Assembly</div>
+            <div class="gallery-desc">Arduino Uno, HC-SR04, Servo and I2C LCD layout.</div>
+          </div>
+        </div>
       </div>
 
-      <div class="filter-tabs" id="filterTabs">
-        <button class="filter-tab active" data-category="all">All Members</button>
-        <button class="filter-tab" data-category="leadership">Leadership</button>
-        <button class="filter-tab" data-category="hardware">Hardware & Embedded</button>
-        <button class="filter-tab" data-category="software">Web & Software</button>
-        <button class="filter-tab" data-category="media">Media & Creative</button>
+      <div class="gallery-item" onclick="openLightbox('photo_6.jpeg', 'Smart Automated Road Safety Barrier with LED Signals')">
+        <div class="gallery-img-wrap">
+          <img src="photo_6.jpeg" alt="Traffic Road Test" class="gallery-img" loading="lazy">
+          <div class="gallery-overlay">
+            <span class="gallery-badge">Field Test</span>
+            <div class="gallery-title">Road Gate Testing</div>
+            <div class="gallery-desc">Testing dynamic vehicle detection and LED indicator response.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-item" onclick="openLightbox('photo_7.jpeg', 'HC-SR04 Ultrasonic Distance Sensor Calibration')">
+        <div class="gallery-img-wrap">
+          <img src="photo_7.jpeg" alt="Ultrasonic Sensor Calibration" class="gallery-img" loading="lazy">
+          <div class="gallery-overlay">
+            <span class="gallery-badge">Sensors</span>
+            <div class="gallery-title">Sonar Calibration</div>
+            <div class="gallery-desc">Ultrasonic pulse tuning on the workstation laptop.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery-item" onclick="openLightbox('photo_8.jpeg', 'Breadboard Prototyping Kit & Microcontroller Workstation')">
+        <div class="gallery-img-wrap">
+          <img src="photo_8.jpeg" alt="Breadboard Prototyping Bench" class="gallery-img" loading="lazy">
+          <div class="gallery-overlay">
+            <span class="gallery-badge">Lab Bench</span>
+            <div class="gallery-title">Prototyping Kit</div>
+            <div class="gallery-desc">Microcontroller wiring bench for TitanX cadets.</div>
+          </div>
+        </div>
       </div>
     </div>
+  </section>
 
-    <!-- 📇 Member Cards Grid -->
-    <div class="members-grid" id="membersGrid">
-
-      <!-- Member 1: Sibsankar Maity -->
-      <div class="cyber-card member-card corner-decor" data-category="leadership software">
-        <div>
-          <div class="member-top">
-            <div class="member-avatar-wrap">
-              <div class="member-avatar" style="border-color: #00ff88; box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);">👑</div>
-              <div class="member-status-indicator"></div>
-            </div>
-            <div class="member-info">
-              <h3 style="color: #00ff88;">Sibsankar Maity</h3>
-              <p class="member-role-badge">Team Leader • Director of Operations • Web Developer</p>
-            </div>
-          </div>
-
-          <p class="member-bio">
-            Founder and lead developer of TitanX Robotics. Oversees system architecture, autonomous robotics integration, web platform development, and team strategy.
-          </p>
-
-          <div class="member-contact">
-            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
-            <span>maitysibsankar56@gmail.com</span>
-          </div>
-        </div>
-
-        <div>
-          <a href="mailto:maitysibsankar56@gmail.com" class="cyber-btn contact-cta">
-            ✉️ Contact Sibsankar
-          </a>
-        </div>
-      </div>
-
-      <!-- Member 2: Sayan Pattanayak -->
-      <div class="cyber-card member-card corner-decor" data-category="hardware">
-        <div>
-          <div class="member-top">
-            <div class="member-avatar-wrap">
-              <div class="member-avatar" style="border-color: #00f0ff; box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);">⚡</div>
-              <div class="member-status-indicator"></div>
-            </div>
-            <div class="member-info">
-              <h3 style="color: #00f0ff;">Sayan Pattanayak</h3>
-              <p class="member-role-badge">Embedded System Developer • Core Team Member</p>
-            </div>
-          </div>
-
-          <p class="member-bio">
-            Specialist in embedded microcontrollers (Arduino, ESP32, STM32), motor control circuits, telemetry sensors, and hardware-software firmware architecture.
-          </p>
-
-          <div class="member-contact">
-            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
-            <span>pattanayaksayan25@gmail.com</span>
-          </div>
-        </div>
-
-        <div>
-          <a href="mailto:pattanayaksayan25@gmail.com" class="cyber-btn cyber-btn-ghost contact-cta">
-            ✉️ Contact Sayan
-          </a>
-        </div>
-      </div>
-
-      <!-- Member 3: Arabinda Hatua -->
-      <div class="cyber-card member-card corner-decor" data-category="media">
-        <div>
-          <div class="member-top">
-            <div class="member-avatar-wrap">
-              <div class="member-avatar" style="border-color: #a855f7; box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);">🎬</div>
-              <div class="member-status-indicator"></div>
-            </div>
-            <div class="member-info">
-              <h3 style="color: #a855f7;">Arabinda Hatua</h3>
-              <p class="member-role-badge">Video Editor & Content Creator • Social Media Manager</p>
-            </div>
-          </div>
-
-          <p class="member-bio">
-            Creative director for TitanX visual productions, project demo videos, digital storyboards, and social media engagement across YouTube and Instagram.
-          </p>
-
-          <div class="member-contact">
-            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
-            <span>arabindahatua372@gmail.com</span>
-          </div>
-        </div>
-
-        <div>
-          <a href="mailto:arabindahatua372@gmail.com" class="cyber-btn cyber-btn-purple contact-cta">
-            ✉️ Contact Arabinda
-          </a>
-        </div>
-      </div>
-
-      <!-- Member 4: Sk Sahil Manik -->
-      <div class="cyber-card member-card corner-decor" data-category="software leadership">
-        <div>
-          <div class="member-top">
-            <div class="member-avatar-wrap">
-              <div class="member-avatar" style="border-color: #38bdf8; box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);">💻</div>
-              <div class="member-status-indicator"></div>
-            </div>
-            <div class="member-info">
-              <h3 style="color: #38bdf8;">Sk Sahil Manik</h3>
-              <p class="member-role-badge">Website Management • Tech Guardian & Enthusiast</p>
-            </div>
-          </div>
-
-          <p class="member-bio">
-            Manages portal infrastructure, site performance, and technology resources. Ensures web uptime and mentors teammates on software workflows.
-          </p>
-
-          <div class="member-contact">
-            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
-            <span>aspirantsiit40@gmail.com</span>
-          </div>
-        </div>
-
-        <div>
-          <a href="mailto:aspirantsiit40@gmail.com" class="cyber-btn cyber-btn-ghost contact-cta">
-            ✉️ Contact Sahil
-          </a>
-        </div>
-      </div>
-
-      <!-- Member 5: Rupam Manna -->
-      <div class="cyber-card member-card corner-decor" data-category="hardware media">
-        <div>
-          <div class="member-top">
-            <div class="member-avatar-wrap">
-              <div class="member-avatar" style="border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);">📸</div>
-              <div class="member-status-indicator"></div>
-            </div>
-            <div class="member-info">
-              <h3 style="color: #f59e0b;">Rupam Manna</h3>
-              <p class="member-role-badge">Photographer • Professional Electrician</p>
-            </div>
-          </div>
-
-          <p class="member-bio">
-            Captures high-resolution project photography and robotics field coverage, alongside professional electrical wiring, circuit testing, and power installation.
-          </p>
-
-          <div class="member-contact">
-            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
-            <span>rupammanna194@gmail.com</span>
-          </div>
-        </div>
-
-        <div>
-          <a href="mailto:rupammanna194@gmail.com" class="cyber-btn cyber-btn-ghost contact-cta">
-            ✉️ Contact Rupam
-          </a>
-        </div>
-      </div>
-
-      <!-- Member 6: Amit Maji -->
-      <div class="cyber-card member-card corner-decor" data-category="hardware">
-        <div>
-          <div class="member-top">
-            <div class="member-avatar-wrap">
-              <div class="member-avatar" style="border-color: #ec4899; box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);">🚀</div>
-              <div class="member-status-indicator"></div>
-            </div>
-            <div class="member-info">
-              <h3 style="color: #ec4899;">Amit Maji</h3>
-              <p class="member-role-badge">Emerging Member • Robotics Enthusiast</p>
-            </div>
-          </div>
-
-          <p class="member-bio">
-            Emerging robotics enthusiast contributing to rover assembly, component fabrication, workshop preparations, and collaborative testing.
-          </p>
-
-          <div class="member-contact">
-            <img src="https://cdn-icons-png.flaticon.com/512/732/732200.png" alt="Email">
-            <span>majia2845@gmail.com</span>
-          </div>
-        </div>
-
-        <div>
-          <a href="mailto:majia2845@gmail.com" class="cyber-btn cyber-btn-ghost contact-cta">
-            ✉️ Contact Amit
-          </a>
-        </div>
-      </div>
-
+  <!-- 🔍 LIGHTBOX MODAL -->
+  <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox(event)">
+    <div class="lightbox-content">
+      <button class="lightbox-close" onclick="closeLightbox(event)" aria-label="Close Lightbox">&times;</button>
+      <img id="lightboxImg" src="" alt="Enlarged Project Photo" class="lightbox-img">
+      <div id="lightboxCaption" class="lightbox-caption"></div>
     </div>
+  </div>
 
-    <!-- Back Button -->
-    <div style="text-align: center; margin-top: 50px;">
-      <a href="home.html" class="cyber-btn">
-        <span>⬅ Return to Home Hub</span>
-      </a>
-    </div>
-  </main>
-
-  <!-- 🌐 FOOTER -->
-  <footer class="titan-footer">
-    <div class="social-grid">
-      <a href="https://www.facebook.com/share/1GKpjcVVhv/" target="_blank" rel="noopener noreferrer" class="social-pill">
-        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
-        <span>Facebook</span>
-      </a>
-      <a href="https://www.instagram.com/titanxrobotics" target="_blank" rel="noopener noreferrer" class="social-pill">
-        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram">
-        <span>Instagram</span>
-      </a>
-      <a href="https://youtube.com/@titanxrobotics-t8u?si=fJ97MjzzYXM7Z3mZ" target="_blank" rel="noopener noreferrer" class="social-pill">
-        <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube">
-        <span>YouTube</span>
-      </a>
-      <a href="https://github.com/Titanxrobotics" target="_blank" rel="noopener noreferrer" class="social-pill">
-        <img src="https://cdn-icons-png.flaticon.com/512/733/733553.png" alt="GitHub">
-        <span>GitHub</span>
-      </a>
-      <a href="https://www.linkedin.com/in/titanx-robotics-0292a33b9" target="_blank" rel="noopener noreferrer" class="social-pill">
-        <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn">
-        <span>LinkedIn</span>
-      </a>
-    </div>
-    <p style="color: var(--text-dim); font-size: 0.85rem;">
-      &copy; 2026 TitanX Robotics. All Rights Reserved.
-    </p>
-  </footer>
-
-  <!-- 🎵 UNIVERSAL AUDIO ENGINE -->
-  <script src="audio-engine.js"></script>
-
-  <!-- 🎯 SCRIPT: SEARCH & FILTER & CURSOR -->
   <script>
-    // Custom Cursor
-    const cursorDot = document.getElementById("cursorDot");
-    const cursorRing = document.getElementById("cursorRing");
-
-    document.addEventListener("mousemove", (e) => {
-      cursorDot.style.left = e.clientX + "px";
-      cursorDot.style.top = e.clientY + "px";
-      cursorRing.style.left = e.clientX + "px";
-      cursorRing.style.top = e.clientY + "px";
-    });
-
-    document.querySelectorAll("a, button, input, .cyber-card").forEach(elem => {
-      elem.addEventListener("mouseenter", () => cursorRing.classList.add("active"));
-      elem.addEventListener("mouseleave", () => cursorRing.classList.remove("active"));
-    });
-
-    // Dynamic Filter & Search
-    const searchInput = document.getElementById("memberSearch");
-    const filterTabs = document.querySelectorAll(".filter-tab");
-    const memberCards = document.querySelectorAll(".member-card");
-
-    let currentFilter = "all";
-
-    function filterMembers() {
-      const query = searchInput.value.toLowerCase().trim();
-
-      memberCards.forEach(card => {
-        const text = card.textContent.toLowerCase();
-        const category = card.dataset.category || "";
-
-        const matchesQuery = query === "" || text.includes(query);
-        const matchesCategory = currentFilter === "all" || category.includes(currentFilter);
-
-        if (matchesQuery && matchesCategory) {
-          card.style.display = "flex";
-        } else {
-          card.style.display = "none";
-        }
-      });
+    function openLightbox(imgSrc, captionText) {
+      const modal = document.getElementById('lightboxModal');
+      const img = document.getElementById('lightboxImg');
+      const caption = document.getElementById('lightboxCaption');
+      if (modal && img) {
+        img.src = imgSrc;
+        caption.textContent = captionText || 'TitanX Robotics Photo';
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
     }
-
-    searchInput.addEventListener("input", filterMembers);
-
-    filterTabs.forEach(tab => {
-      tab.addEventListener("click", () => {
-        filterTabs.forEach(t => t.classList.remove("active"));
-        tab.classList.add("active");
-        currentFilter = tab.dataset.category;
-        filterMembers();
-      });
+    function closeLightbox(e) {
+      if (e.target.classList.contains('lightbox-modal') || e.target.classList.contains('lightbox-close') || e.target.id === 'lightboxModal') {
+        const modal = document.getElementById('lightboxModal');
+        if (modal) {
+          modal.classList.remove('open');
+          document.body.style.overflow = '';
+        }
+      }
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('lightboxModal');
+        if (modal) {
+          modal.classList.remove('open');
+          document.body.style.overflow = '';
+        }
+      }
     });
   </script>
 
+  <footer class="titan-footer">
+
+    <div class="social-grid">
+
+      <a href="https://www.facebook.com/share/1GKpjcVVhv/" target="_blank" rel="noopener noreferrer" class="social-pill">
+
+        <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
+
+        <span>Facebook</span>
+
+      </a>
+
+      <a href="https://www.instagram.com/titanxrobotics" target="_blank" rel="noopener noreferrer" class="social-pill">
+
+        <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram">
+
+        <span>Instagram</span>
+
+      </a>
+
+      <a href="https://youtube.com/@titanxrobotics-t8u?si=fJ97MjzzYXM7Z3mZ" target="_blank" rel="noopener noreferrer" class="social-pill">
+
+        <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube">
+
+        <span>YouTube</span>
+
+      </a>
+
+      <a href="https://github.com/Titanxrobotics" target="_blank" rel="noopener noreferrer" class="social-pill">
+
+        <img src="https://cdn-icons-png.flaticon.com/512/733/733553.png" alt="GitHub">
+
+        <span>GitHub</span>
+
+      </a>
+
+      <a href="https://www.linkedin.com/in/titanx-robotics-0292a33b9" target="_blank" rel="noopener noreferrer" class="social-pill">
+
+        <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png" alt="LinkedIn">
+
+        <span>LinkedIn</span>
+
+      </a>
+
+    </div>
+
+    <p style="color: var(--text-dim); font-size: 0.85rem;">
+
+      &copy; 2026 TitanX Robotics. All Rights Reserved.
+
+    </p>
+
+  </footer>
+
+
+
+  <!-- &#127925; UNIVERSAL AUDIO ENGINE -->
+
+  <script src="audio-engine.js"></script>
+
+
+
+  <!-- &#127919; SCRIPT: SEARCH & FILTER & CURSOR -->
+
+  <script>
+
+    // Custom Cursor
+
+    const cursorDot = document.getElementById("cursorDot");
+
+    const cursorRing = document.getElementById("cursorRing");
+
+
+
+    document.addEventListener("mousemove", (e) => {
+
+      cursorDot.style.left = e.clientX + "px";
+
+      cursorDot.style.top = e.clientY + "px";
+
+      cursorRing.style.left = e.clientX + "px";
+
+      cursorRing.style.top = e.clientY + "px";
+
+    });
+
+
+
+    document.querySelectorAll("a, button, input, .cyber-card").forEach(elem => {
+
+      elem.addEventListener("mouseenter", () => cursorRing.classList.add("active"));
+
+      elem.addEventListener("mouseleave", () => cursorRing.classList.remove("active"));
+
+    });
+
+
+
+    // Dynamic Filter & Search
+
+    const searchInput = document.getElementById("memberSearch");
+
+    const filterTabs = document.querySelectorAll(".filter-tab");
+
+    const memberCards = document.querySelectorAll(".member-card");
+
+
+
+    let currentFilter = "all";
+
+
+
+    function filterMembers() {
+
+      const query = searchInput.value.toLowerCase().trim();
+
+
+
+      memberCards.forEach(card => {
+
+        const text = card.textContent.toLowerCase();
+
+        const category = card.dataset.category || "";
+
+
+
+        const matchesQuery = query === "" || text.includes(query);
+
+        const matchesCategory = currentFilter === "all" || category.includes(currentFilter);
+
+
+
+        if (matchesQuery && matchesCategory) {
+
+          card.style.display = "flex";
+
+        } else {
+
+          card.style.display = "none";
+
+        }
+
+      });
+
+    }
+
+
+
+    searchInput.addEventListener("input", filterMembers);
+
+
+
+    filterTabs.forEach(tab => {
+
+      tab.addEventListener("click", () => {
+
+        filterTabs.forEach(t => t.classList.remove("active"));
+
+        tab.classList.add("active");
+
+        currentFilter = tab.dataset.category;
+
+        filterMembers();
+
+      });
+
+    });
+
+  </script>
+
+
+
+  <script>
+
+    const mobBtn = document.getElementById("mobMenuBtn");
+
+    const mobDrawer = document.getElementById("mobDrawer");
+
+    if (mobBtn && mobDrawer) {
+
+      mobBtn.addEventListener("click", () => {
+
+        const isOpen = mobDrawer.classList.toggle("open");
+
+        mobBtn.classList.toggle("open", isOpen);
+
+        mobBtn.setAttribute("aria-expanded", isOpen);
+
+        document.body.style.overflow = isOpen ? "hidden" : "";
+
+      });
+
+      mobDrawer.querySelectorAll("a").forEach(a => {
+
+        a.addEventListener("click", () => {
+
+          mobDrawer.classList.remove("open");
+
+          mobBtn.classList.remove("open");
+
+          document.body.style.overflow = "";
+
+        });
+
+      });
+
+    }
+
+  </script>
+
 </body>
+
 </html>
+

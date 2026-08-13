@@ -1,0 +1,432 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — TitanX Registration</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="reg-style.css">
+  <style>
+    body { padding: 0; }
+    /* Password Gate */
+    #gateScreen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; z-index: 1; }
+    .gate-card { max-width: 360px; width: 100%; padding: 40px 32px; }
+    .gate-logo { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--nebula-purple); box-shadow: var(--glow-purple); display: block; margin: 0 auto 16px; }
+    .gate-title { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 3px; text-align: center; margin-bottom: 6px; }
+    .gate-sub { color: var(--text-mid); text-align: center; font-size: 0.85rem; margin-bottom: 28px; }
+    .pass-wrap { position: relative; }
+    .pass-wrap .input-icon { top: 50%; transform: translateY(-50%); }
+    #gateError { color: #f87171; font-size: 0.82rem; margin-top: 8px; display: none; text-align: center; }
+    /* Dashboard */
+    #dashboard { display: none; padding: 90px 20px 60px; position: relative; z-index: 1; }
+    .dash-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
+    .dash-title { font-family: var(--font-display); font-size: clamp(1.4rem,3vw,2rem); letter-spacing: 2px; }
+    .dash-subtitle { color: var(--text-mid); font-size: 0.9rem; margin-top: 4px; }
+    .dash-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    /* Toolbar */
+    .toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+    .search-wrap { flex: 1; min-width: 200px; position: relative; }
+    .search-wrap .input-icon { top: 50%; transform: translateY(-50%); }
+    .search-wrap .space-input { padding-left: 42px; }
+    /* Table extras */
+    .name-cell strong { display: block; }
+    .name-cell span { color: var(--text-mid); font-size: 0.8rem; }
+    .why-cell { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-mid); font-size: 0.82rem; cursor: pointer; }
+    .why-cell:hover { color: var(--nebula-light); }
+    /* Detail Modal */
+    .detail-modal .modal-box { max-width: 540px; text-align: left; }
+    .detail-row { margin-bottom: 12px; }
+    .detail-key { font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 2px; }
+    .detail-val { color: var(--text-bright); font-size: 0.92rem; }
+    .detail-why { color: var(--text-mid); line-height: 1.6; font-size: 0.88rem; margin-top: 4px; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    /* Export */
+    .export-btn { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.35); color: #6ee7b7; border-radius: 10px; padding: 9px 16px; font-family: var(--font-body); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .export-btn:hover { background: rgba(16,185,129,0.22); }
+    .logout-btn { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #f87171; border-radius: 10px; padding: 9px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .logout-btn:hover { background: rgba(239,68,68,0.2); }
+    /* Status filter tabs */
+    .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .filter-tab { padding: 7px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; }
+    .filter-tab.all { border-color: rgba(124,58,237,0.3); color: var(--nebula-light); }
+    .filter-tab.all.active, .filter-tab.all:hover { background: rgba(124,58,237,0.15); border-color: var(--nebula-purple); }
+    .filter-tab.pend { border-color: rgba(245,158,11,0.3); color: #fbbf24; }
+    .filter-tab.pend.active, .filter-tab.pend:hover { background: rgba(245,158,11,0.12); border-color: #f59e0b; }
+    .filter-tab.appr { border-color: rgba(16,185,129,0.3); color: #34d399; }
+    .filter-tab.appr.active, .filter-tab.appr:hover { background: rgba(16,185,129,0.12); border-color: var(--emerald); }
+    .filter-tab.rejt { border-color: rgba(239,68,68,0.3); color: #f87171; }
+    .filter-tab.rejt.active, .filter-tab.rejt:hover { background: rgba(239,68,68,0.12); border-color: #ef4444; }
+    @media(max-width:640px){ .dash-header{flex-direction:column} thead th:nth-child(4), tbody td:nth-child(4), thead th:nth-child(5), tbody td:nth-child(5){ display:none; } }
+  </style>
+</head>
+<body>
+  <canvas id="starCanvas"></canvas>
+  <div class="nebula-bg"></div>
+
+  <!-- Navbar -->
+  <nav class="space-nav" aria-label="Main Navigation">
+    <a href="reg-home.html" class="nav-brand">
+      <img src="photo1.jpeg" alt="TitanX Logo" class="nav-logo">
+      <span class="nav-title">TITANX ROBOTICS</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="reg-home.html" class="nav-link">Home</a></li>
+      <li><a href="reg-form.html" class="nav-link">Apply</a></li>
+      <li><a href="reg-admin.html" class="nav-link active">Admin</a></li>
+    </ul>
+  </nav>
+
+  <!-- PASSWORD GATE -->
+  <div id="gateScreen">
+    <div class="space-card gate-card">
+      <img src="photo1.jpeg" alt="Logo" class="gate-logo">
+      <h1 class="gate-title text-gradient">ADMIN ACCESS</h1>
+      <p class="gate-sub">Enter the admin password to access the registration dashboard.</p>
+      <div class="form-group">
+        <label class="form-label" for="passInput">Admin Password</label>
+        <div class="input-group pass-wrap">
+          <span class="input-icon">&#128274;</span>
+          <input type="password" id="passInput" class="space-input" placeholder="Enter password..." onkeydown="if(event.key==='Enter')checkPass()">
+        </div>
+      </div>
+      <div id="gateError">&#10007; Incorrect password. Try again.</div>
+      <br>
+      <button class="space-btn btn-primary" style="width:100%;justify-content:center;" onclick="checkPass()">&#128275; Unlock Dashboard</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard">
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title text-gradient">Registration Admin</h1>
+        <p class="dash-subtitle">Review, approve or reject cadet applications</p>
+      </div>
+      <div class="dash-actions">
+        <button class="export-btn" onclick="exportCSV()">&#128229; Export CSV</button>
+        <button class="logout-btn" onclick="logout()">&#128274; Lock</button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" style="margin-bottom:28px;" id="statsGrid">
+      <div class="stat-card stat-total"><div class="stat-num" id="sTotal">-</div><div class="stat-label">Total</div></div>
+      <div class="stat-card stat-pending"><div class="stat-num" id="sPending">-</div><div class="stat-label">Pending</div></div>
+      <div class="stat-card stat-approved"><div class="stat-num" id="sApproved">-</div><div class="stat-label">Approved</div></div>
+      <div class="stat-card stat-rejected"><div class="stat-num" id="sRejected">-</div><div class="stat-label">Rejected</div></div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <button class="filter-tab all active" id="tab-all" onclick="setTab('all')">All</button>
+      <button class="filter-tab pend" id="tab-pending" onclick="setTab('pending')">&#9203; Pending</button>
+      <button class="filter-tab appr" id="tab-approved" onclick="setTab('approved')">&#10003; Approved</button>
+      <button class="filter-tab rejt" id="tab-rejected" onclick="setTab('rejected')">&#10005; Rejected</button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="input-icon">&#128269;</span>
+        <input type="text" id="searchInput" class="space-input" placeholder="Search by name, email, school..." oninput="filterApps()">
+      </div>
+      <select id="filterDomain" class="space-input" style="min-width:180px;" onchange="filterApps()">
+        <option value="">All Domains</option>
+        <option value="Autonomous Ground Vehicles &amp; Robot Cars">Autonomous Vehicles</option>
+        <option value="Drones &amp; Aerial Quadcopters">Drones</option>
+        <option value="Embedded Systems &amp; IoT (Arduino/ESP32)">Embedded / IoT</option>
+        <option value="Computer Vision &amp; AI Software">AI / CV</option>
+        <option value="Media, Video Production &amp; Design">Media</option>
+      </select>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap" style="background:var(--space-card);backdrop-filter:blur(16px);">
+      <table id="appTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Applicant</th>
+            <th>Details</th>
+            <th>Domain</th>
+            <th>Why Join</th>
+            <th>Applied</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="appBody">
+          <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-mid);">
+            <span style="display:inline-block;width:28px;height:28px;border:3px solid rgba(124,58,237,0.2);border-top-color:var(--nebula-purple);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:10px;vertical-align:middle;"></span>
+            Loading applications...
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Confirm Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeConfirm()">&#10005;</button>
+      <div class="modal-icon" id="confirmIcon">&#9888;&#65039;</div>
+      <h2 class="modal-title" id="confirmTitle">Confirm Action</h2>
+      <p class="modal-text" id="confirmText">Are you sure?</p>
+      <div class="modal-footer">
+        <button class="space-btn btn-ghost btn-sm" onclick="closeConfirm()">Cancel</button>
+        <button class="space-btn btn-sm" id="confirmOkBtn" onclick="runConfirmedAction()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay detail-modal" id="detailModal">
+    <div class="modal-box" style="max-width:520px;text-align:left;">
+      <button class="modal-close" onclick="closeDetail()">&#10005;</button>
+      <h2 class="modal-title" id="detailName" style="margin-bottom:18px;"></h2>
+      <div class="detail-grid" id="detailGrid"></div>
+      <div class="detail-row" id="detailWhyRow">
+        <div class="detail-key">Why they want to join</div>
+        <div class="detail-why" id="detailWhy"></div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:10px;" id="detailActions"></div>
+    </div>
+  </div>
+
+  <style>@keyframes spin{ to{transform:rotate(360deg)} }</style>
+  <div class="toast" id="toast"></div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, deleteDoc, updateDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const ADMIN_PASS = "titanx2024";
+    const firebaseConfig = {
+      apiKey: "AIzaSyArTaM2XXi8nSZCykIQi-yeq9zbb4sVauc",
+      authDomain: "titanx-robotics.firebaseapp.com",
+      projectId: "titanx-robotics",
+    };
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    let allApps = [];
+    let currentTab = "all";
+    let pendingAction = null;
+
+    // ── Toast ──
+    function toast(msg, type) {
+      const t = document.getElementById("toast");
+      t.textContent = msg; t.className = "toast "+(type||"info")+" show";
+      setTimeout(()=>t.classList.remove("show"), 3200);
+    }
+
+    // ── Helpers ──
+    function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+    function fmt(iso){ if(!iso)return"-"; const d=new Date(iso); return d.toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}); }
+
+    function updateStats() {
+      document.getElementById("sTotal").textContent = allApps.length;
+      document.getElementById("sPending").textContent  = allApps.filter(a=>a.status==="pending").length;
+      document.getElementById("sApproved").textContent = allApps.filter(a=>a.status==="approved").length;
+      document.getElementById("sRejected").textContent = allApps.filter(a=>a.status==="rejected").length;
+    }
+
+    function statusBadge(s) {
+      if (s==="approved") return '<span class="badge badge-approved">&#10003; Approved</span>';
+      if (s==="rejected") return '<span class="badge badge-rejected">&#10005; Rejected</span>';
+      return '<span class="badge badge-pending">&#9203; Pending</span>';
+    }
+
+    function renderTable(apps) {
+      const tbody = document.getElementById("appBody");
+      if (!apps.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-dim);">&#128196; No applications found.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = apps.map((a,i) => `
+        <tr>
+          <td class="td-dim">${i+1}</td>
+          <td class="name-cell"><strong>${esc(a.name)}</strong><span>${esc(a.email)}</span></td>
+          <td class="td-dim" style="font-size:0.82rem;">
+            <div>${esc(a.phone)}</div>
+            <div>Age: ${esc(a.age)} | ${esc(a.experience)}</div>
+            <div style="font-size:0.78rem;">${esc(a.school)}, ${esc(a.class)}</div>
+          </td>
+          <td><span style="font-size:0.8rem;color:var(--nebula-light);">${esc(a.domain||"-")}</span></td>
+          <td><div class="why-cell" onclick="openDetail('${a.id}')" title="Click to view full application">${esc(a.whyJoin||"-")}</div></td>
+          <td class="td-dim">${fmt(a.registeredAt)}</td>
+          <td>${statusBadge(a.status)}</td>
+          <td>
+            <div class="actions-cell">
+              ${a.status!=="approved" ? `<button class="act-btn act-approve" onclick="confirmAction('approve','${a.id}','${esc(a.name)}')">&#10003;</button>` : ""}
+              ${a.status!=="rejected" ? `<button class="act-btn act-reject"  onclick="confirmAction('reject','${a.id}','${esc(a.name)}')">&#10005;</button>` : ""}
+              <button class="act-btn act-delete" onclick="confirmAction('delete','${a.id}','${esc(a.name)}')">&#128465;</button>
+            </div>
+          </td>
+        </tr>`).join("");
+    }
+
+    window.filterApps = function() {
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      const dom = document.getElementById("filterDomain").value;
+      let list = allApps;
+      if (currentTab !== "all") list = list.filter(a => a.status === currentTab);
+      list = list.filter(a => {
+        const mq = !q || [a.name,a.email,a.phone,a.school].some(v=>(v||"").toLowerCase().includes(q));
+        const md = !dom || a.domain === dom;
+        return mq && md;
+      });
+      renderTable(list);
+    };
+
+    window.setTab = function(tab) {
+      currentTab = tab;
+      ["all","pending","approved","rejected"].forEach(t => {
+        document.getElementById("tab-"+t)?.classList.toggle("active", t===tab);
+      });
+      window.filterApps();
+    };
+
+    // ── Load ──
+    async function load() {
+      try {
+        const snap = await getDocs(query(collection(db,"registrations"), orderBy("registeredAt","desc")));
+        allApps = snap.docs.map(d => ({id:d.id,...d.data()}));
+        updateStats(); window.filterApps();
+      } catch(e) {
+        console.error(e);
+        document.getElementById("appBody").innerHTML = '<tr><td colspan="8" style="text-align:center;color:#f87171;padding:30px;">Failed to load. Check Firestore rules.</td></tr>';
+      }
+    }
+
+    // ── Confirm Action ──
+    window.confirmAction = function(action, id, name) {
+      pendingAction = {action, id, name};
+      const icons = {approve:"&#9989;", reject:"&#10060;", delete:"&#128465;"};
+      const titles = {approve:"Approve Application", reject:"Reject Application", delete:"Delete Application"};
+      const texts  = {
+        approve: `Approve <strong class="modal-highlight">${esc(name)}</strong>'s application? They will be marked as Approved.`,
+        reject:  `Reject <strong class="modal-highlight">${esc(name)}</strong>'s application? They will be marked as Rejected.`,
+        delete:  `Permanently delete <strong class="modal-highlight">${esc(name)}</strong>'s application? This cannot be undone.`
+      };
+      const btnColors = {approve:"btn-primary", reject:"space-btn btn-ghost", delete:"space-btn"};
+      document.getElementById("confirmIcon").innerHTML  = icons[action];
+      document.getElementById("confirmTitle").textContent = titles[action];
+      document.getElementById("confirmText").innerHTML  = texts[action];
+      const okBtn = document.getElementById("confirmOkBtn");
+      okBtn.className = "space-btn btn-sm";
+      if (action==="approve") { okBtn.style.background="linear-gradient(135deg,#10b981,#059669)"; okBtn.style.color="#fff"; }
+      else if (action==="reject") { okBtn.style.background="rgba(245,158,11,0.2)"; okBtn.style.color="#fbbf24"; okBtn.style.border="1px solid rgba(245,158,11,0.4)"; }
+      else { okBtn.style.background="rgba(239,68,68,0.2)"; okBtn.style.color="#f87171"; okBtn.style.border="1px solid rgba(239,68,68,0.4)"; }
+      document.getElementById("confirmModal").classList.add("open");
+    };
+
+    window.runConfirmedAction = async function() {
+      if (!pendingAction) return;
+      const {action, id, name} = pendingAction;
+      const okBtn = document.getElementById("confirmOkBtn");
+      okBtn.disabled = true; okBtn.textContent = "...";
+      try {
+        if (action === "delete") {
+          await deleteDoc(doc(db,"registrations",id));
+          allApps = allApps.filter(a=>a.id!==id);
+          toast("Application deleted.", "info");
+        } else {
+          const status = action === "approve" ? "approved" : "rejected";
+          await updateDoc(doc(db,"registrations",id), {status});
+          const idx = allApps.findIndex(a=>a.id===id);
+          if (idx>-1) allApps[idx].status = status;
+          toast(action==="approve" ? "Application approved!" : "Application rejected.", action==="approve"?"success":"error");
+        }
+        updateStats(); window.filterApps(); closeConfirm();
+      } catch(e) {
+        console.error(e);
+        toast("Action failed. Check Firestore rules.", "error");
+      } finally {
+        okBtn.disabled = false; okBtn.textContent = "Confirm";
+        pendingAction = null;
+      }
+    };
+
+    window.closeConfirm = function() {
+      document.getElementById("confirmModal").classList.remove("open");
+      pendingAction = null;
+    };
+
+    // ── Detail Modal ──
+    window.openDetail = function(id) {
+      const a = allApps.find(x=>x.id===id);
+      if (!a) return;
+      document.getElementById("detailName").textContent = a.name || "Applicant";
+      const grid = document.getElementById("detailGrid");
+      grid.innerHTML = [
+        ["Email", a.email], ["Phone", a.phone],
+        ["Age", a.age], ["Gender", a.gender||"-"],
+        ["School/College", a.school], ["Class/Year", a.class],
+        ["Experience", a.experience], ["Domain", a.domain],
+        ["Applied On", fmt(a.registeredAt)], ["Status", a.status?.toUpperCase()||"-"]
+      ].map(([k,v])=>`<div class="detail-row"><div class="detail-key">${k}</div><div class="detail-val">${esc(v)}</div></div>`).join("");
+      document.getElementById("detailWhy").textContent = a.whyJoin || "-";
+      const acts = document.getElementById("detailActions");
+      acts.innerHTML = "";
+      if (a.status!=="approved") {
+        const b = document.createElement("button");
+        b.className="space-btn btn-sm"; b.textContent="Approve"; b.style.background="linear-gradient(135deg,#10b981,#059669)"; b.style.color="#fff";
+        b.onclick=()=>{closeDetail();window.confirmAction("approve",a.id,a.name);}; acts.appendChild(b);
+      }
+      if (a.status!=="rejected") {
+        const b = document.createElement("button");
+        b.className="space-btn btn-ghost btn-sm"; b.textContent="Reject";
+        b.onclick=()=>{closeDetail();window.confirmAction("reject",a.id,a.name);}; acts.appendChild(b);
+      }
+      document.getElementById("detailModal").classList.add("open");
+    };
+    window.closeDetail = function() { document.getElementById("detailModal").classList.remove("open"); };
+
+    document.getElementById("confirmModal").addEventListener("click", e=>{ if(e.target===e.currentTarget) window.closeConfirm(); });
+    document.getElementById("detailModal").addEventListener("click", e=>{ if(e.target===e.currentTarget) window.closeDetail(); });
+
+    // ── Export CSV ──
+    window.exportCSV = function() {
+      if (!allApps.length) { toast("No data to export.", "error"); return; }
+      const h = ["#","Name","Email","Phone","Age","School","Class","Experience","Domain","Status","Applied At"];
+      const rows = allApps.map((a,i)=>[i+1,a.name,a.email,a.phone,a.age,a.school,a.class,a.experience,a.domain,a.status,fmt(a.registeredAt)].map(v=>`"${String(v||"").replace(/"/g,'""')}"`));
+      const csv = [h,...rows].map(r=>r.join(",")).join("\n");
+      const bl = new Blob([csv],{type:"text/csv"});
+      const a2 = document.createElement("a"); a2.href=URL.createObjectURL(bl);
+      a2.download="titanx_applications_"+new Date().toISOString().slice(0,10)+".csv"; a2.click();
+      toast("CSV exported!", "success");
+    };
+
+    // ── Password ──
+    window.checkPass = function() {
+      const v = document.getElementById("passInput").value;
+      if (v === ADMIN_PASS) {
+        document.getElementById("gateScreen").style.display="none";
+        document.getElementById("dashboard").style.display="block";
+        load();
+      } else {
+        document.getElementById("gateError").style.display="block";
+        document.getElementById("passInput").value="";
+        document.getElementById("passInput").focus();
+        setTimeout(()=>document.getElementById("gateError").style.display="none", 3000);
+      }
+    };
+    window.logout = function() {
+      document.getElementById("dashboard").style.display="none";
+      document.getElementById("gateScreen").style.display="flex";
+      document.getElementById("passInput").value="";
+    };
+  </script>
+
+  <!-- Stars -->
+  <script>
+    const canvas=document.getElementById("starCanvas"), ctx=canvas.getContext("2d"); let W,H,stars=[];
+    function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+    function initStars(){stars=[];for(let i=0;i<200;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.3+0.2,a:Math.random(),speed:Math.random()*0.5+0.2,dir:Math.random()>.5?1:-1,color:['#fff','#a78bfa','#93c5fd','#fbbf24'][Math.floor(Math.random()*4)]});}
+    function draw(){ctx.clearRect(0,0,W,H);stars.forEach(s=>{s.a+=s.speed*0.01*s.dir;if(s.a>1||s.a<0)s.dir*=-1;ctx.save();ctx.globalAlpha=s.a*0.85;ctx.fillStyle=s.color;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();ctx.restore();});requestAnimationFrame(draw);}
+    window.addEventListener('resize',()=>{resize();initStars();}); resize();initStars();draw();
+  </script>
+</body>
+</html>

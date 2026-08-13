@@ -1,0 +1,365 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | TitanX Robotics</title>
+  <meta name="description" content="TitanX Robotics Admin Panel — Manage registered cadets, add or remove members.">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { padding: 100px 20px 60px; }
+    .admin-header { text-align: center; margin-bottom: 40px; }
+    .admin-header h1 { font-family: var(--font-display); font-size: clamp(1.6rem,4vw,2.6rem); letter-spacing: 3px; text-transform: uppercase; }
+    .admin-header p { color: var(--text-muted); margin-top: 8px; font-size: 1rem; }
+    .admin-badge { display: inline-block; background: linear-gradient(135deg,rgba(0,240,255,0.15),rgba(168,85,247,0.15)); border: 1px solid var(--border-cyan); border-radius: 20px; padding: 4px 14px; font-family: var(--font-heading); font-size: 0.8rem; letter-spacing: 2px; color: var(--neon-cyan); margin-bottom: 16px; }
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 16px; max-width: 900px; margin: 0 auto 36px; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border-cyan); border-radius: 16px; padding: 20px; text-align: center; backdrop-filter: blur(10px); transition: transform 0.2s,box-shadow 0.2s; }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: var(--glow-cyan-subtle); }
+    .stat-number { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--neon-cyan); }
+    .stat-label { font-family: var(--font-heading); font-size: 0.8rem; letter-spacing: 1.5px; color: var(--text-muted); text-transform: uppercase; margin-top: 4px; }
+    .toolbar { max-width: 900px; margin: 0 auto 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .search-wrapper { flex: 1; min-width: 200px; position: relative; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; color: var(--neon-cyan); pointer-events: none; }
+    #searchInput { padding-left: 42px; width: 100%; }
+    .filter-select { min-width: 200px; }
+    .add-btn { white-space: nowrap; padding: 11px 20px; }
+    .table-wrapper { max-width: 900px; margin: 0 auto 30px; overflow-x: auto; border-radius: 16px; border: 1px solid var(--border-cyan); backdrop-filter: blur(10px); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    thead { background: linear-gradient(135deg,rgba(0,240,255,0.12),rgba(168,85,247,0.1)); }
+    thead th { font-family: var(--font-heading); font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase; color: var(--neon-cyan); padding: 14px 16px; text-align: left; white-space: nowrap; }
+    tbody tr { border-top: 1px solid rgba(0,240,255,0.08); transition: background 0.2s; }
+    tbody tr:hover { background: rgba(0,240,255,0.05); }
+    tbody td { padding: 13px 16px; color: var(--text-main); vertical-align: middle; }
+    .td-muted { color: var(--text-muted); font-size: 0.88rem; }
+    .domain-badge { display: inline-block; background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.3); border-radius: 20px; padding: 3px 10px; font-size: 0.78rem; color: #c084fc; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .delete-btn { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.35); color: #f87171; border-radius: 8px; padding: 6px 12px; font-family: var(--font-heading); font-size: 0.8rem; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+    .delete-btn:hover { background: rgba(239,68,68,0.25); box-shadow: 0 0 10px rgba(239,68,68,0.3); transform: scale(1.05); }
+    .empty-state { text-align: center; padding: 48px 20px; color: var(--text-dim); }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .loading-row td { text-align: center; padding: 40px; color: var(--text-muted); }
+    .spinner { display: inline-block; width: 28px; height: 28px; border: 3px solid rgba(0,240,255,0.2); border-top-color: var(--neon-cyan); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 10px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(4,7,17,0.85); backdrop-filter: blur(6px); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: var(--bg-secondary); border: 1px solid var(--border-cyan); border-radius: 20px; padding: 32px 28px; width: 100%; max-width: 460px; box-shadow: var(--glow-box); position: relative; animation: slideUp 0.25s ease; }
+    @keyframes slideUp { from { opacity:0;transform:translateY(20px); } to { opacity:1;transform:translateY(0); } }
+    .modal-title { font-family: var(--font-display); font-size: 1.2rem; letter-spacing: 2px; color: var(--neon-cyan); margin-bottom: 22px; }
+    .modal-close { position: absolute; top: 16px; right: 18px; background: none; border: none; color: var(--text-dim); font-size: 1.3rem; cursor: pointer; transition: color 0.2s; }
+    .modal-close:hover { color: var(--neon-cyan); }
+    .modal-form .form-group { margin-bottom: 16px; text-align: left; }
+    .modal-form .form-label { display: block; font-family: var(--font-heading); font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .modal-footer { display: flex; gap: 12px; margin-top: 22px; }
+    .modal-footer .cyber-btn { flex: 1; justify-content: center; }
+    .btn-cancel { flex: 1; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: var(--text-muted); font-family: var(--font-heading); letter-spacing: 1px; cursor: pointer; transition: all 0.2s; }
+    .btn-cancel:hover { background: rgba(255,255,255,0.1); color: var(--text-main); }
+    .confirm-modal-box { max-width: 360px; text-align: center; }
+    .confirm-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .confirm-text { color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; }
+    .confirm-name { color: var(--text-main); font-weight: 600; }
+    .btn-danger { flex: 1; padding: 12px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); border-radius: 10px; color: #f87171; font-family: var(--font-heading); letter-spacing: 1px; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; }
+    .btn-danger:hover { background: rgba(239,68,68,0.3); box-shadow: 0 0 12px rgba(239,68,68,0.3); }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--bg-secondary); border: 1px solid var(--border-cyan); border-radius: 12px; padding: 12px 24px; font-family: var(--font-heading); letter-spacing: 1px; font-size: 0.9rem; color: var(--text-main); box-shadow: var(--glow-box); z-index: 9999; opacity: 0; transition: opacity 0.3s,transform 0.3s; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: var(--neon-emerald); color: #6ee7b7; }
+    .toast.error { border-color: #f87171; color: #f87171; }
+    .export-btn { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.35); color: #6ee7b7; border-radius: 10px; padding: 11px 18px; font-family: var(--font-heading); font-size: 0.85rem; letter-spacing: 1px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .export-btn:hover { background: rgba(16,185,129,0.22); box-shadow: 0 0 12px rgba(16,185,129,0.25); }
+    @media (max-width: 600px) { .toolbar { flex-direction: column; } .filter-select,.search-wrapper { width: 100%; } }
+  </style>
+</head>
+<body>
+  <div class="custom-cursor-dot" id="cursorDot"></div>
+  <div class="custom-cursor-ring" id="cursorRing"></div>
+  <header>
+    <nav class="titan-navbar" aria-label="Main Navigation">
+      <a href="home.html" class="titan-nav-brand">
+        <img src="photo1.jpeg" alt="TitanX Logo">
+        <span class="titan-nav-title">TITANX ROBOTICS</span>
+      </a>
+      <ul class="titan-nav-links">
+        <li><a href="home.html" class="titan-nav-link">Home</a></li>
+        <li><a href="members.html" class="titan-nav-link">Members</a></li>
+        <li><a href="register.html" class="titan-nav-link">Register</a></li>
+        <li><a href="admin.html" class="titan-nav-link active">Admin</a></li>
+      </ul>
+      <div>
+        <a href="home.html" class="cyber-btn cyber-btn-ghost" style="padding:8px 16px;font-size:0.9rem;">Back</a>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <div class="admin-header">
+      <div class="admin-badge">ADMIN PANEL</div>
+      <h1 class="text-gradient">Registration Dashboard</h1>
+      <p>Manage all cadet registrations - view, add and remove entries.</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-number" id="totalCount">-</div>
+        <div class="stat-label">Total Registered</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="todayCount">-</div>
+        <div class="stat-label">Joined Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="domainCount">-</div>
+        <div class="stat-label">Interest Areas</div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="search-wrapper">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" id="searchInput" class="cyber-input" placeholder="Search by name, email, phone...">
+      </div>
+      <select id="filterDomain" class="cyber-input filter-select">
+        <option value="">All Interests</option>
+        <option value="Autonomous Ground Vehicles &amp; Robot Cars">Autonomous Ground Vehicles</option>
+        <option value="Drones &amp; Aerial Quadcopters">Drones &amp; Aerial Quadcopters</option>
+        <option value="Embedded Systems &amp; IoT (Arduino/ESP32)">Embedded Systems &amp; IoT</option>
+        <option value="Computer Vision &amp; AI Software">Computer Vision &amp; AI</option>
+        <option value="Media, Video Production &amp; Design">Media &amp; Design</option>
+      </select>
+      <button class="export-btn" id="exportBtn" onclick="exportCSV()">Export CSV</button>
+      <button class="cyber-btn add-btn" onclick="openAddModal()">+ Add User</button>
+    </div>
+    <div class="table-wrapper">
+      <table id="usersTable" aria-label="Registered Users">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Interest</th>
+            <th>Registered</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody">
+          <tr class="loading-row">
+            <td colspan="7"><span class="spinner"></span> Loading registrations...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Add Modal -->
+  <div class="modal-overlay" id="addModal" role="dialog" aria-modal="true" aria-labelledby="addModalTitle">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeAddModal()" aria-label="Close">X</button>
+      <h2 class="modal-title" id="addModalTitle">ADD NEW CADET</h2>
+      <form class="modal-form" id="addForm" onsubmit="return false;">
+        <div class="form-group">
+          <label class="form-label" for="m_name">Full Name *</label>
+          <input type="text" id="m_name" class="cyber-input" placeholder="e.g. Alex Mercer" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="m_email">Email Address *</label>
+          <input type="email" id="m_email" class="cyber-input" placeholder="name@domain.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="m_phone">Phone / WhatsApp *</label>
+          <input type="tel" id="m_phone" class="cyber-input" placeholder="+91 98765 43210" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="m_domain">Primary Interest</label>
+          <select id="m_domain" class="cyber-input">
+            <option value="Autonomous Ground Vehicles &amp; Robot Cars">Autonomous Ground Vehicles &amp; Robot Cars</option>
+            <option value="Drones &amp; Aerial Quadcopters">Drones &amp; Aerial Quadcopters</option>
+            <option value="Embedded Systems &amp; IoT (Arduino/ESP32)">Embedded Systems &amp; IoT (Arduino/ESP32)</option>
+            <option value="Computer Vision &amp; AI Software">Computer Vision &amp; AI Software</option>
+            <option value="Media, Video Production &amp; Design">Media, Video Production &amp; Design</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+          <button type="button" class="cyber-btn" id="addSubmitBtn" onclick="addUser()">Add Cadet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Delete Modal -->
+  <div class="modal-overlay" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modal-box confirm-modal-box">
+      <div class="confirm-icon">&#9888;&#65039;</div>
+      <h2 class="modal-title" id="confirmTitle">CONFIRM REMOVAL</h2>
+      <p class="confirm-text">Are you sure you want to remove <span class="confirm-name" id="confirmName"></span>? This cannot be undone.</p>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeConfirmModal()">Cancel</button>
+        <button type="button" class="btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">Remove</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyArTaM2XXi8nSZCykIQi-yeq9zbb4sVauc",
+      authDomain: "titanx-robotics.firebaseapp.com",
+      projectId: "titanx-robotics",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+    let allUsers = [];
+    let deleteTargetId = null;
+
+    function showToast(msg, type) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.className = "toast " + (type||"success") + " show";
+      setTimeout(() => { t.classList.remove("show"); }, 3000);
+    }
+
+    function formatDate(iso) {
+      if (!iso) return "-";
+      const d = new Date(iso);
+      return d.toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" });
+    }
+
+    function escHtml(str) {
+      return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+    }
+
+    function updateStats() {
+      document.getElementById("totalCount").textContent = allUsers.length;
+      const today = new Date().toDateString();
+      const todayN = allUsers.filter(u => new Date(u.registeredAt).toDateString() === today).length;
+      document.getElementById("todayCount").textContent = todayN;
+      const domains = new Set(allUsers.map(u => u.domain).filter(Boolean));
+      document.getElementById("domainCount").textContent = domains.size;
+    }
+
+    function renderTable(users) {
+      const tbody = document.getElementById("usersBody");
+      if (!users.length) {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">&#128587;</div><p>No registrations found.</p></div></td></tr>';
+        return;
+      }
+      tbody.innerHTML = users.map((u,i) => '<tr><td class="td-muted">'+(i+1)+'</td><td><strong>'+escHtml(u.name||"-")+'</strong></td><td class="td-muted">'+escHtml(u.email||"-")+'</td><td class="td-muted">'+escHtml(u.phone||"-")+'</td><td><span class="domain-badge" title="'+escHtml(u.domain||"")+'">'+escHtml(u.domain||"-")+'</span></td><td class="td-muted">'+formatDate(u.registeredAt)+'</td><td><button class="delete-btn" onclick="window._openConfirm(\''+u.id+'\',\''+escHtml(u.name||"this user")+'\')">Remove</button></td></tr>').join("");
+    }
+
+    function filterUsers() {
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      const dom = document.getElementById("filterDomain").value;
+      const filtered = allUsers.filter(u => {
+        const mq = !q || (u.name||"").toLowerCase().includes(q) || (u.email||"").toLowerCase().includes(q) || (u.phone||"").toLowerCase().includes(q);
+        const md = !dom || u.domain === dom;
+        return mq && md;
+      });
+      renderTable(filtered);
+    }
+
+    async function loadUsers() {
+      try {
+        const snap = await getDocs(query(collection(db, "users"), orderBy("registeredAt","desc")));
+        allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        updateStats();
+        filterUsers();
+      } catch(e) {
+        console.error(e);
+        document.getElementById("usersBody").innerHTML = '<tr><td colspan="7" style="text-align:center;color:#f87171;padding:30px;">Failed to load data. Check Firestore permissions or internet.</td></tr>';
+      }
+    }
+
+    window.addUser = async function() {
+      const name  = document.getElementById("m_name").value.trim();
+      const email = document.getElementById("m_email").value.trim();
+      const phone = document.getElementById("m_phone").value.trim();
+      const domain = document.getElementById("m_domain").value;
+      if (!name||!email||!phone) { showToast("Please fill all required fields.","error"); return; }
+      const btn = document.getElementById("addSubmitBtn");
+      btn.disabled = true; btn.textContent = "Adding...";
+      try {
+        const ref = await addDoc(collection(db,"users"), { name,email,phone,domain, registeredAt: new Date().toISOString() });
+        allUsers.unshift({ id: ref.id, name,email,phone,domain, registeredAt: new Date().toISOString() });
+        updateStats(); filterUsers(); closeAddModal();
+        showToast("Cadet added successfully!","success");
+      } catch(e) { console.error(e); showToast("Failed to add. Try again.","error"); }
+      finally { btn.disabled=false; btn.textContent="Add Cadet"; }
+    };
+
+    window._openConfirm = function(id, name) {
+      deleteTargetId = id;
+      document.getElementById("confirmName").textContent = name;
+      document.getElementById("confirmModal").classList.add("open");
+    };
+
+    window.confirmDelete = async function() {
+      if (!deleteTargetId) return;
+      const btn = document.getElementById("confirmDeleteBtn");
+      btn.disabled=true; btn.textContent="Removing...";
+      try {
+        await deleteDoc(doc(db,"users",deleteTargetId));
+        allUsers = allUsers.filter(u => u.id !== deleteTargetId);
+        updateStats(); filterUsers(); closeConfirmModal();
+        showToast("User removed.","success");
+      } catch(e) { console.error(e); showToast("Failed to remove. Check Firestore rules.","error"); }
+      finally { btn.disabled=false; btn.textContent="Remove"; deleteTargetId=null; }
+    };
+
+    window.exportCSV = function() {
+      if (!allUsers.length) { showToast("No data to export.","error"); return; }
+      const header = ["#","Name","Email","Phone","Interest","Registered At"];
+      const rows = allUsers.map((u,i) => [i+1,'"'+(u.name||"").replace(/"/g,'""')+'"','"'+(u.email||"").replace(/"/g,'""')+'"','"'+(u.phone||"").replace(/"/g,'""')+'"','"'+(u.domain||"").replace(/"/g,'""')+'"','"'+formatDate(u.registeredAt)+'"']);
+      const csv = [header,...rows].map(r => r.join(",")).join("\n");
+      const blob = new Blob([csv],{type:"text/csv"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "titanx_registrations_"+new Date().toISOString().slice(0,10)+".csv";
+      a.click();
+      showToast("CSV exported!","success");
+    };
+
+    window.openAddModal = function() { document.getElementById("addModal").classList.add("open"); document.getElementById("addForm").reset(); };
+    window.closeAddModal = function() { document.getElementById("addModal").classList.remove("open"); };
+    window.closeConfirmModal = function() { document.getElementById("confirmModal").classList.remove("open"); deleteTargetId=null; };
+
+    document.getElementById("addModal").addEventListener("click", e => { if(e.target===e.currentTarget) window.closeAddModal(); });
+    document.getElementById("confirmModal").addEventListener("click", e => { if(e.target===e.currentTarget) window.closeConfirmModal(); });
+    document.getElementById("searchInput").addEventListener("input", filterUsers);
+    document.getElementById("filterDomain").addEventListener("change", filterUsers);
+
+    loadUsers();
+  </script>
+
+  <!-- 🎧 UNIVERSAL AUDIO ELEMENT -->
+  <audio id="bgmusic" loop preload="auto" playsinline>
+    <source src="audio1.mp3" type="audio/mpeg">
+    <source src="audio.mpeg" type="audio/mpeg">
+    <source src="audio1.mpeg" type="audio/mpeg">
+  </audio>
+  <div class="audio-controller-widget" id="audioWidget" title="Toggle Audio">
+    <button class="audio-btn paused" id="audioToggleBtn" aria-label="Audio Play/Pause">
+      <span id="audioIcon">&#9654;</span>
+    </button>
+    <div class="audio-equalizer">
+      <div class="eq-bar"></div><div class="eq-bar"></div>
+      <div class="eq-bar"></div><div class="eq-bar"></div>
+    </div>
+    <span class="audio-label" id="audioStatusText">AUDIO // TAP TO PLAY</span>
+    <input type="range" class="audio-volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="0.5" title="Volume Control">
+  </div>
+  <script src="audio-engine.js"></script>
+  <script>
+    const cursorDot = document.getElementById("cursorDot");
+    const cursorRing = document.getElementById("cursorRing");
+    document.addEventListener("mousemove", e => {
+      cursorDot.style.left = e.clientX+"px"; cursorDot.style.top = e.clientY+"px";
+      cursorRing.style.left = e.clientX+"px"; cursorRing.style.top = e.clientY+"px";
+    });
+    document.querySelectorAll("a,button,input,select,.stat-card").forEach(el => {
+      el.addEventListener("mouseenter", () => cursorRing.classList.add("active"));
+      el.addEventListener("mouseleave", () => cursorRing.classList.remove("active"));
+    });
+  </script>
+</body>
+</html>
