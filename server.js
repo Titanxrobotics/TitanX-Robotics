@@ -38,7 +38,7 @@ app.post("/push", async (req, res) => {
     const content = req.body.content;
 
     const token = process.env.GITHUB_TOKEN;
-    const repo = "https://github.com/Titanxrobotics/TitanX-Robotics"; // 👈 CHANGE THIS
+    const repo = "Titanxrobotics/TitanX-Robotics"; // 👈 GitHub owner/repo format
 
     const url = `https://api.github.com/repos/${repo}/contents/${fileName}`;
 
