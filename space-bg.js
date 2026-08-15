@@ -1,9 +1,8 @@
 /**
  * ============================================================================
- * TITANX ROBOTICS - 3D INTERACTIVE COSMIC SPACE, THUNDERSTORM & PLANETARY ENGINE
- * High-performance 60FPS Celestial Cosmos with Realistic Branched Lightning Bolts,
- * Cosmic Thunderstorm Flashes, Sheet Lightning, 3D Orbital Planets, Saturn Rings,
- * Orbiting Moons, Parallax Storm Nebulae, Starfield, Meteors & Touch Navigation.
+ * TITANX ROBOTICS - DEDICATED EPIC THUNDERSTORM & LIGHTNING ENGINE (space-bg.js)
+ * Intense Real-time Thunderstorm, Volumetric Rolling Stormclouds, Multi-branched
+ * Lightning Strikes, Sheet Thunder, Interactive Cursor Lightning & Electric Rain.
  * ============================================================================
  */
 (function () {
@@ -26,7 +25,7 @@
       'height: 100vh',
       'z-index: -2',
       'pointer-events: none',
-      'background: radial-gradient(ellipse at 50% 50%, #060c1e 0%, #030611 60%, #010206 100%)',
+      'background: #02040b',
       'display: block'
     ].join(';');
     document.body.prepend(canvas);
@@ -37,9 +36,8 @@
   var H = (canvas.height = window.innerHeight);
 
   // Configuration
-  var STAR_COUNT = Math.min(600, Math.floor((W * H) / 2400));
-  var FOV = 480;
-  var BOUNDS = 1100;
+  var RAIN_COUNT = Math.min(260, Math.floor((W * H) / 4500));
+  var CLOUD_COUNT = 14;
 
   // Mouse & Camera state
   var mouse = {
@@ -49,306 +47,181 @@
     targetRotY: 0,
     currRotX: 0,
     currRotY: 0,
-    velRotX: 0,
-    velRotY: 0,
     lastX: W / 2,
     lastY: H / 2,
-    speed: 0
+    speed: 0,
+    isDown: false
   };
 
-  var autoSpinX = 0;
-  var autoSpinY = 0;
-  var scrollOffsetZ = 0;
-  var targetScrollOffsetZ = 0;
-
-  // ⚡ THUNDER & LIGHTNING SYSTEM STATE
-  var thunderState = {
-    timer: 0,
-    nextStrikeTime: 3.0,
-    activeBolts: [],
+  // ⚡ THUNDERSTORM ENGINE STATE
+  var storm = {
+    strikeTimer: 0,
+    nextStrikeInterval: 1.6, // Frequent dramatic strikes
     ambientFlash: 0,
-    flashColor: 'rgba(0, 240, 255, 0.25)',
-    plasmaTendrils: []
+    flashIntensity: 0,
+    flashColor: 'rgba(0, 240, 255, ',
+    activeBolts: [],
+    sheetFlashes: [],
+    interactiveArcs: []
   };
 
-  // Color Palettes for Stars
-  var STAR_COLORS = [
-    { r: 255, g: 255, b: 255, name: 'white' },
-    { r: 0, g: 240, b: 255, name: 'cyan' },
-    { r: 168, g: 85, b: 247, name: 'purple' },
-    { r: 56, g: 189, b: 248, name: 'blue' },
-    { r: 251, g: 191, b: 36, name: 'gold' },
-    { r: 236, g: 72, b: 153, name: 'pink' }
-  ];
-
-  // 1. Generate 3D Stars
-  var stars = [];
-  function createStar() {
-    var theta = Math.random() * Math.PI * 2;
-    var phi = Math.acos(Math.random() * 2 - 1);
-    var radius = Math.cbrt(Math.random()) * BOUNDS;
-
-    var colorObj = STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)];
-    var isHeroStar = Math.random() < 0.08;
-
+  // 1. Volumetric Rolling Thunderstorm Clouds
+  var clouds = [];
+  function createCloud() {
     return {
-      x: radius * Math.sin(phi) * Math.cos(theta),
-      y: radius * Math.sin(phi) * Math.sin(theta),
-      z: radius * Math.cos(phi),
-      baseSize: isHeroStar ? Math.random() * 2.2 + 1.8 : Math.random() * 1.4 + 0.6,
-      color: colorObj,
-      twinkleSpeed: Math.random() * 0.03 + 0.01,
-      twinklePhase: Math.random() * Math.PI * 2,
-      isHero: isHeroStar,
-      halo: isHeroStar || Math.random() < 0.15,
-      px: 0,
-      py: 0,
-      scale: 0,
-      z2: 0,
-      visible: false
+      x: (Math.random() - 0.2) * W * 1.4,
+      y: Math.random() * H * 0.7 - 50,
+      r: Math.random() * 260 + 180,
+      vx: (Math.random() * 0.4 + 0.15) * (Math.random() > 0.5 ? 1 : -1),
+      vy: (Math.random() * 0.15 - 0.075),
+      colorBase: Math.random() > 0.4 ? 'rgba(6, 14, 32, ' : 'rgba(18, 10, 36, ',
+      glowBase: Math.random() > 0.5 ? 'rgba(0, 240, 255, ' : 'rgba(168, 85, 247, ',
+      density: Math.random() * 0.35 + 0.45,
+      phase: Math.random() * Math.PI * 2,
+      pulseSpeed: Math.random() * 0.02 + 0.01
     };
   }
 
-  function initStars() {
-    stars = [];
-    for (var i = 0; i < STAR_COUNT; i++) {
-      stars.push(createStar());
+  function initClouds() {
+    clouds = [];
+    for (var i = 0; i < CLOUD_COUNT; i++) {
+      clouds.push(createCloud());
     }
   }
 
-  // 2. Cosmic Thunderstorm Nebulae Clouds
-  var nebulae = [];
-  function initNebulae() {
-    nebulae = [
-      { x: -350, y: -200, z: 200, r: 440, color: 'rgba(0, 240, 255, 0.07)', stormAlpha: 0.14 },
-      { x: 380, y: 220, z: -100, r: 480, color: 'rgba(168, 85, 247, 0.08)', stormAlpha: 0.16 },
-      { x: -200, y: 300, z: 300, r: 380, color: 'rgba(59, 130, 246, 0.06)', stormAlpha: 0.12 },
-      { x: 280, y: -260, z: -250, r: 400, color: 'rgba(236, 72, 153, 0.05)', stormAlpha: 0.10 },
-      { x: 0, y: 0, z: 450, r: 520, color: 'rgba(14, 165, 233, 0.05)', stormAlpha: 0.15 }
-    ];
+  // 2. Angled Electric Storm Rain
+  var raindrops = [];
+  function createRaindrop(initY) {
+    return {
+      x: Math.random() * (W + 300) - 150,
+      y: initY ? Math.random() * H : -20,
+      length: Math.random() * 26 + 18,
+      speed: Math.random() * 16 + 22,
+      slant: -0.22, // Angled rain
+      alpha: Math.random() * 0.45 + 0.25,
+      width: Math.random() * 1.2 + 0.6
+    };
   }
 
-  // 3. 3D Planets & Moons Model System
-  var planets = [
-    {
-      name: 'Titan-Prime',
-      orbitRadius: 520,
-      orbitSpeed: 0.00035,
-      orbitAngle: 0.8,
-      orbitTilt: 0.25,
-      baseRadius: 46,
-      selfRot: 0,
-      selfRotSpeed: 0.008,
-      type: 'gas-giant',
-      colors: {
-        base: '#0c2340',
-        bright: '#00f0ff',
-        mid: '#1d4ed8',
-        dark: '#030712',
-        atmosphere: 'rgba(0, 240, 255, 0.5)',
-        halo: 'rgba(0, 240, 255, 0.18)'
-      },
-      hasRings: true,
-      ringInner: 58,
-      ringOuter: 104,
-      ringTilt: 0.42,
-      ringColorInner: 'rgba(0, 240, 255, 0.55)',
-      ringColorMid: 'rgba(168, 85, 247, 0.4)',
-      ringColorOuter: 'rgba(0, 240, 255, 0.05)',
-      hasMoon: false
-    },
-    {
-      name: 'Aether-9',
-      orbitRadius: 380,
-      orbitSpeed: -0.0005,
-      orbitAngle: 3.2,
-      orbitTilt: -0.3,
-      baseRadius: 30,
-      selfRot: 0,
-      selfRotSpeed: 0.006,
-      type: 'terrestrial-violet',
-      colors: {
-        base: '#3b0764',
-        bright: '#c084fc',
-        mid: '#7c3aed',
-        dark: '#030008',
-        atmosphere: 'rgba(192, 132, 252, 0.5)',
-        halo: 'rgba(168, 85, 247, 0.22)'
-      },
-      hasRings: false,
-      hasMoon: true,
-      moonOrbitRadius: 54,
-      moonOrbitSpeed: 0.015,
-      moonAngle: 0,
-      moonRadius: 6.5,
-      moonColor: '#cbd5e1'
-    },
-    {
-      name: 'Solaris-Prime',
-      orbitRadius: 680,
-      orbitSpeed: 0.00028,
-      orbitAngle: 4.9,
-      orbitTilt: 0.15,
-      baseRadius: 26,
-      selfRot: 0,
-      selfRotSpeed: 0.01,
-      type: 'molten',
-      colors: {
-        base: '#7c2d12',
-        bright: '#fbbf24',
-        mid: '#ea580c',
-        dark: '#050201',
-        atmosphere: 'rgba(251, 191, 36, 0.45)',
-        halo: 'rgba(234, 88, 12, 0.2)'
-      },
-      hasRings: false,
-      hasMoon: false
-    },
-    {
-      name: 'Cryo-Glacis',
-      orbitRadius: 790,
-      orbitSpeed: -0.0002,
-      orbitAngle: 1.9,
-      orbitTilt: -0.2,
-      baseRadius: 21,
-      selfRot: 0,
-      selfRotSpeed: 0.005,
-      type: 'ice',
-      colors: {
-        base: '#082f49',
-        bright: '#38bdf8',
-        mid: '#0284c7',
-        dark: '#010912',
-        atmosphere: 'rgba(56, 189, 248, 0.5)',
-        halo: 'rgba(14, 165, 233, 0.25)'
-      },
-      hasRings: false,
-      hasMoon: false
+  function initRain() {
+    raindrops = [];
+    for (var i = 0; i < RAIN_COUNT; i++) {
+      raindrops.push(createRaindrop(true));
     }
-  ];
-
-  // 4. Shooting Stars / Meteors
-  var meteors = [];
-  function spawnMeteor() {
-    if (meteors.length >= 3) return;
-    var startAngle = Math.random() * Math.PI * 2;
-    var speed = Math.random() * 14 + 16;
-    var dirAngle = startAngle + Math.PI + (Math.random() - 0.5) * 0.5;
-
-    meteors.push({
-      x: (Math.random() - 0.5) * W * 1.5,
-      y: (Math.random() - 0.5) * H * 1.5,
-      z: (Math.random() - 0.5) * 400,
-      vx: Math.cos(dirAngle) * speed,
-      vy: Math.sin(dirAngle) * speed,
-      vz: (Math.random() - 0.5) * 4,
-      length: Math.random() * 90 + 70,
-      life: 1.0,
-      decay: Math.random() * 0.018 + 0.012,
-      color: Math.random() > 0.4 ? '#00f0ff' : '#fbcfe8'
-    });
   }
 
   // ==========================================================================
-  // ⚡ PROCEDURAL FRACTAL LIGHTNING & THUNDER ENGINE
+  // ⚡ PROCEDURAL FRACTAL LIGHTNING GENERATOR
   // ==========================================================================
-  function createLightningSegment(x1, y1, x2, y2, displace, depth, maxDepth) {
-    if (depth >= maxDepth || displace < 3) {
+  function generateFractalPath(x1, y1, x2, y2, displacement, depth, maxDepth) {
+    if (depth >= maxDepth || displacement < 3) {
       return [{ x: x1, y: y1 }, { x: x2, y: y2 }];
     }
 
-    var midX = (x1 + x2) / 2 + (Math.random() - 0.5) * displace;
-    var midY = (y1 + y2) / 2 + (Math.random() - 0.5) * displace;
+    var midX = (x1 + x2) / 2 + (Math.random() - 0.5) * displacement;
+    var midY = (y1 + y2) / 2 + (Math.random() - 0.5) * displacement;
 
-    var leftBranch = createLightningSegment(x1, y1, midX, midY, displace * 0.58, depth + 1, maxDepth);
-    var rightBranch = createLightningSegment(midX, midY, x2, y2, displace * 0.58, depth + 1, maxDepth);
+    var seg1 = generateFractalPath(x1, y1, midX, midY, displacement * 0.55, depth + 1, maxDepth);
+    var seg2 = generateFractalPath(midX, midY, x2, y2, displacement * 0.55, depth + 1, maxDepth);
 
-    return leftBranch.concat(rightBranch.slice(1));
+    return seg1.concat(seg2.slice(1));
   }
 
-  function generateForkedBolt(startX, startY, endX, endY, mainDisplace, maxDepth) {
-    var mainPath = createLightningSegment(startX, startY, endX, endY, mainDisplace, 0, maxDepth);
+  function buildLightningBolt(startX, startY, endX, endY, intensity, isTargeted) {
+    var trunk = generateFractalPath(startX, startY, endX, endY, Math.min(W, H) * (isTargeted ? 0.15 : 0.25), 0, 5);
     var branches = [];
 
-    // Generate 2-4 sub-branches splitting off the main trunk
-    var branchCount = Math.floor(Math.random() * 3) + 2;
+    // Fork branches
+    var branchCount = Math.floor(Math.random() * 4) + 2;
     for (var b = 0; b < branchCount; b++) {
-      var splitIdx = Math.floor(Math.random() * (mainPath.length - 4)) + 2;
-      var splitPt = mainPath[splitIdx];
-      if (!splitPt) continue;
+      var splitIdx = Math.floor(Math.random() * (trunk.length - 4)) + 2;
+      var pt = trunk[splitIdx];
+      if (!pt) continue;
 
-      var angle = Math.atan2(endY - startY, endX - startX) + (Math.random() - 0.5) * 1.4;
+      var baseAngle = Math.atan2(endY - startY, endX - startX);
+      var angle = baseAngle + (Math.random() - 0.5) * 1.6;
       var len = (Math.random() * 0.5 + 0.3) * Math.hypot(endX - startX, endY - startY);
-      var bEndX = splitPt.x + Math.cos(angle) * len;
-      var bEndY = splitPt.y + Math.sin(angle) * len;
+      var bx = pt.x + Math.cos(angle) * len;
+      var by = pt.y + Math.sin(angle) * len;
 
-      var bPath = createLightningSegment(splitPt.x, splitPt.y, bEndX, bEndY, mainDisplace * 0.5, 0, maxDepth - 1);
+      var bPath = generateFractalPath(pt.x, pt.y, bx, by, Math.min(W, H) * 0.12, 0, 4);
       branches.push(bPath);
     }
 
     return {
-      trunk: mainPath,
-      branches: branches
+      trunk: trunk,
+      branches: branches,
+      intensity: intensity || 1.0,
+      life: 1.0,
+      decay: Math.random() * 0.04 + 0.04,
+      colorGlow: Math.random() > 0.35 ? '#00f0ff' : '#c084fc',
+      colorMid: Math.random() > 0.35 ? 'rgba(0, 240, 255, 0.9)' : 'rgba(192, 132, 252, 0.9)',
+      strobePhase: 0,
+      strobeFlashes: Math.floor(Math.random() * 3) + 2
     };
   }
 
-  function triggerLightningStrike(isSheetOnly) {
-    var isCyan = Math.random() > 0.35;
-    var primaryColor = isCyan ? 'rgba(0, 240, 255, ' : 'rgba(168, 85, 247, ';
-    var glowColor = isCyan ? '#00f0ff' : '#c084fc';
+  // Trigger Major Lightning Strike
+  function triggerMajorStrike(targetX, targetY) {
+    var isTargeted = typeof targetX === 'number' && typeof targetY === 'number';
+    var startX = isTargeted ? targetX + (Math.random() - 0.5) * 300 : Math.random() * W;
+    var startY = -20;
+    var endX = isTargeted ? targetX : startX + (Math.random() - 0.5) * (W * 0.8);
+    var endY = isTargeted ? targetY : H * (Math.random() * 0.4 + 0.6);
 
-    // Flash illumination
-    thunderState.ambientFlash = isSheetOnly ? 0.45 : 0.95;
-    thunderState.flashColor = primaryColor;
+    var bolt = buildLightningBolt(startX, startY, endX, endY, 1.0, isTargeted);
+    storm.activeBolts.push(bolt);
 
-    if (!isSheetOnly) {
-      // Pick random source from top cloud/space or celestial focal point
-      var startX = Math.random() * W;
-      var startY = Math.random() * (H * 0.25);
-
-      // Target across space (sometimes towards a planet or bottom)
-      var endX = startX + (Math.random() - 0.5) * (W * 0.65);
-      var endY = H * (Math.random() * 0.5 + 0.5);
-
-      var boltData = generateForkedBolt(startX, startY, endX, endY, Math.min(W, H) * 0.22, 5);
-
-      thunderState.activeBolts.push({
-        bolt: boltData,
-        life: 1.0,
-        decay: Math.random() * 0.045 + 0.035,
-        glowColor: glowColor,
-        strobeCount: Math.floor(Math.random() * 2) + 2, // Multi-strike strobe
-        strobeTimer: 0
-      });
+    // Simultaneous second fork for extreme thunderstorm realism
+    if (Math.random() < 0.45) {
+      var s2X = startX + (Math.random() - 0.5) * 180;
+      var e2X = endX + (Math.random() - 0.5) * 250;
+      var bolt2 = buildLightningBolt(s2X, startY, e2X, endY * 0.9, 0.8, false);
+      storm.activeBolts.push(bolt2);
     }
+
+    // Trigger powerful sky illumination flash
+    storm.ambientFlash = 1.0;
+    storm.flashColor = Math.random() > 0.35 ? 'rgba(0, 240, 255, ' : 'rgba(168, 85, 247, ';
   }
 
-  // Interactive Plasma Micro-Arc on cursor/touch
-  function triggerPlasmaSparks(cx, cy) {
-    if (thunderState.plasmaTendrils.length >= 4) return;
-    var count = Math.floor(Math.random() * 2) + 1;
-    for (var i = 0; i < count; i++) {
-      var angle = Math.random() * Math.PI * 2;
-      var len = Math.random() * 50 + 30;
-      var tx = cx + Math.cos(angle) * len;
-      var ty = cy + Math.sin(angle) * len;
-      var path = createLightningSegment(cx, cy, tx, ty, 18, 0, 3);
-      thunderState.plasmaTendrils.push({
-        path: path,
-        life: 1.0,
-        decay: 0.12,
-        color: Math.random() > 0.5 ? '#00f0ff' : '#a855f7'
-      });
-    }
+  // Sheet Lightning (Intra-cloud diffuse rumble)
+  function triggerSheetLightning() {
+    storm.sheetFlashes.push({
+      x: Math.random() * W,
+      y: Math.random() * (H * 0.6),
+      r: Math.random() * 350 + 200,
+      life: 1.0,
+      decay: Math.random() * 0.06 + 0.05,
+      color: Math.random() > 0.4 ? 'rgba(0, 240, 255, ' : 'rgba(168, 85, 247, '
+    });
+    storm.ambientFlash = Math.max(storm.ambientFlash, 0.55);
+  }
+
+  // Interactive Cursor Tesla Arc
+  function spawnCursorArc(cx, cy) {
+    if (storm.interactiveArcs.length >= 5) return;
+    var angle = Math.random() * Math.PI * 2;
+    var len = Math.random() * 70 + 40;
+    var tx = cx + Math.cos(angle) * len;
+    var ty = cy + Math.sin(angle) * len;
+    var path = generateFractalPath(cx, cy, tx, ty, 20, 0, 3);
+
+    storm.interactiveArcs.push({
+      path: path,
+      life: 1.0,
+      decay: 0.12,
+      color: Math.random() > 0.4 ? '#00f0ff' : '#a855f7'
+    });
   }
 
   // Resize handler
   function handleResize() {
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
-    STAR_COUNT = Math.min(600, Math.floor((W * H) / 2400));
-    initStars();
-    initNebulae();
+    RAIN_COUNT = Math.min(260, Math.floor((W * H) / 4500));
+    initClouds();
+    initRain();
   }
   window.addEventListener('resize', handleResize);
 
@@ -362,16 +235,12 @@
 
     var normX = (clientX / W - 0.5) * 2;
     var normY = (clientY / H - 0.5) * 2;
+    mouse.targetRotY = normX * 0.6;
+    mouse.targetRotX = -normY * 0.4;
 
-    mouse.targetRotY = normX * 0.95;
-    mouse.targetRotX = -normY * 0.75;
-
-    mouse.velRotY += dx * 0.00012;
-    mouse.velRotX -= dy * 0.00012;
-
-    // Small interactive plasma spark if fast motion
-    if (mouse.speed > 28 && Math.random() < 0.15) {
-      triggerPlasmaSparks(clientX, clientY);
+    // Fast movement triggers electric sparks
+    if (mouse.speed > 25 && Math.random() < 0.25) {
+      spawnCursorArc(clientX, clientY);
     }
   }
 
@@ -383,7 +252,7 @@
     if (e.touches && e.touches[0]) {
       mouse.lastX = e.touches[0].clientX;
       mouse.lastY = e.touches[0].clientY;
-      triggerPlasmaSparks(e.touches[0].clientX, e.touches[0].clientY);
+      spawnCursorArc(e.touches[0].clientX, e.touches[0].clientY);
     }
   }, { passive: true });
 
@@ -393,170 +262,21 @@
     }
   }, { passive: true });
 
-  // Scroll reactivity
-  window.addEventListener('scroll', function () {
-    var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
-    targetScrollOffsetZ = (scrollY % 1600) * 0.5;
-  }, { passive: true });
-
-  // Mobile Gyroscope
-  if (window.DeviceOrientationEvent) {
-    window.addEventListener('deviceorientation', function (e) {
-      if (e.gamma !== null && e.beta !== null) {
-        mouse.targetRotY = (e.gamma / 45) * 0.8;
-        mouse.targetRotX = ((e.beta - 45) / 45) * 0.6;
-      }
-    }, { passive: true });
-  }
-
-  initStars();
-  initNebulae();
-
-  // Draw 3D Planet Body
-  function drawPlanetBody(p, px, py, radius, scale, rotX, rotY, thunderBoost) {
-    if (radius < 2) return;
-
-    ctx.save();
-
-    // 1. Atmosphere Halo (Intensified during Thunder Flash)
-    var haloRadius = radius * (1.5 + thunderBoost * 0.4);
-    var haloGrad = ctx.createRadialGradient(px, py, radius * 0.8, px, py, haloRadius);
-    haloGrad.addColorStop(0, p.colors.halo);
-    if (thunderBoost > 0.1) {
-      haloGrad.addColorStop(0.5, 'rgba(0, 240, 255, ' + (thunderBoost * 0.3).toFixed(2) + ')');
+  // Click / Tap directly summons a massive thunderbolt strike!
+  window.addEventListener('click', function (e) {
+    // Avoid triggering on buttons / links
+    if (e.target && (e.target.closest('a') || e.target.closest('button') || e.target.closest('input'))) {
+      return;
     }
-    haloGrad.addColorStop(1, 'transparent');
-    ctx.fillStyle = haloGrad;
-    ctx.beginPath();
-    ctx.arc(px, py, haloRadius, 0, Math.PI * 2);
-    ctx.fill();
+    triggerMajorStrike(e.clientX, e.clientY);
+  });
 
-    // 2. Planet Disc Clip
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(px, py, radius, 0, Math.PI * 2);
-    ctx.clip();
+  initClouds();
+  initRain();
 
-    // Base Planet Color Fill
-    ctx.fillStyle = p.colors.base;
-    ctx.fillRect(px - radius, py - radius, radius * 2, radius * 2);
-
-    // Dynamic 3D Bands
-    var bandCount = p.type === 'gas-giant' ? 8 : 4;
-    for (var b = -bandCount; b <= bandCount; b++) {
-      var by = py + (b * radius * 0.28) + Math.sin(p.selfRot + b) * 3;
-      var bh = radius * 0.16;
-      ctx.fillStyle = b % 2 === 0 ? p.colors.mid : p.colors.bright;
-      ctx.globalAlpha = 0.28 + 0.1 * Math.sin(b + p.selfRot) + thunderBoost * 0.15;
-      ctx.beginPath();
-      ctx.ellipse(px, by, radius * 1.05, bh, p.hasRings ? p.ringTilt * 0.5 : 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1.0;
-
-    // 3. Spherical 3D Lighting & Shadow
-    var lightX = px - radius * 0.45;
-    var lightY = py - radius * 0.45;
-    var sphereGrad = ctx.createRadialGradient(
-      lightX, lightY, radius * 0.1,
-      px, py, radius * 1.05
-    );
-    sphereGrad.addColorStop(0, 'rgba(255, 255, 255, ' + (0.45 + thunderBoost * 0.4).toFixed(2) + ')');
-    sphereGrad.addColorStop(0.3, 'rgba(255, 255, 255, 0.05)');
-    sphereGrad.addColorStop(0.65, 'rgba(0, 0, 0, ' + Math.max(0.1, 0.4 - thunderBoost * 0.3).toFixed(2) + ')');
-    sphereGrad.addColorStop(1, 'rgba(0, 0, 0, ' + Math.max(0.2, 0.95 - thunderBoost * 0.5).toFixed(2) + ')');
-
-    ctx.fillStyle = sphereGrad;
-    ctx.fillRect(px - radius, py - radius, radius * 2, radius * 2);
-
-    // 4. Atmospheric Rim Glow
-    var rimGrad = ctx.createRadialGradient(px, py, radius * 0.75, px, py, radius);
-    rimGrad.addColorStop(0, 'transparent');
-    rimGrad.addColorStop(0.85, p.colors.atmosphere);
-    rimGrad.addColorStop(1, 'rgba(255, 255, 255, 0.8)');
-    ctx.fillStyle = rimGrad;
-    ctx.fillRect(px - radius, py - radius, radius * 2, radius * 2);
-
-    ctx.restore(); // End planet clip
-
-    // Planet Border
-    ctx.strokeStyle = p.colors.atmosphere;
-    ctx.lineWidth = Math.max(0.5, 1.2 * scale);
-    ctx.beginPath();
-    ctx.arc(px, py, radius, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.restore();
-  }
-
-  // Draw 3D Saturn-like Planetary Rings
-  function drawPlanetRings(p, px, py, scale, isFrontHalf) {
-    if (!p.hasRings) return;
-
-    var innerR = p.ringInner * scale;
-    var outerR = p.ringOuter * scale;
-    var heightRatio = 0.28;
-    var angle = p.ringTilt;
-
-    ctx.save();
-    ctx.translate(px, py);
-    ctx.rotate(angle);
-
-    var startAngle = isFrontHalf ? 0 : Math.PI;
-    var endAngle = isFrontHalf ? Math.PI : Math.PI * 2;
-
-    ctx.beginPath();
-    ctx.ellipse(0, 0, outerR, outerR * heightRatio, 0, startAngle, endAngle);
-    ctx.ellipse(0, 0, innerR, innerR * heightRatio, 0, endAngle, startAngle, true);
-    ctx.closePath();
-
-    var ringGrad = ctx.createRadialGradient(0, 0, innerR, 0, 0, outerR);
-    ringGrad.addColorStop(0, p.ringColorInner);
-    ringGrad.addColorStop(0.5, p.ringColorMid);
-    ringGrad.addColorStop(0.8, p.ringColorInner);
-    ringGrad.addColorStop(1, p.ringColorOuter);
-
-    ctx.fillStyle = ringGrad;
-    ctx.fill();
-
-    ctx.lineWidth = Math.max(0.5, 0.8 * scale);
-    ctx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, (innerR + outerR) * 0.5, (innerR + outerR) * 0.5 * heightRatio, 0, startAngle, endAngle);
-    ctx.stroke();
-
-    ctx.restore();
-  }
-
-  // Draw Orbiting Moon
-  function drawMoon(p) {
-    if (!p.hasMoon || !p.moon) return;
-    var m = p.moon;
-    if (m.px < -20 || m.px > W + 20 || m.py < -20 || m.py > H + 20) return;
-
-    var mRadius = Math.max(0.8, p.moonRadius * m.scale);
-
-    ctx.save();
-    var mGrad = ctx.createRadialGradient(m.px - mRadius * 0.3, m.py - mRadius * 0.3, mRadius * 0.1, m.px, m.py, mRadius * 1.4);
-    mGrad.addColorStop(0, '#ffffff');
-    mGrad.addColorStop(0.4, p.moonColor);
-    mGrad.addColorStop(1, '#0f172a');
-
-    ctx.fillStyle = mGrad;
-    ctx.beginPath();
-    ctx.arc(m.px, m.py, mRadius, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.strokeStyle = 'rgba(203, 213, 225, 0.5)';
-    ctx.lineWidth = 0.5;
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  // Draw a single lightning branch polyline
-  function renderLightningPath(points, width, strokeStyle, shadowBlur, shadowColor) {
+  // Helper to draw lightning polyline
+  function renderLightningStroke(points, width, color, shadowBlur, shadowColor) {
     if (!points || points.length < 2) return;
-
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
@@ -564,7 +284,7 @@
       ctx.lineTo(points[i].x, points[i].y);
     }
     ctx.lineWidth = width;
-    ctx.strokeStyle = strokeStyle;
+    ctx.strokeStyle = color;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     if (shadowBlur > 0) {
@@ -577,356 +297,197 @@
 
   // Animation Loop
   var lastTime = performance.now();
-  var meteorTimer = 0;
 
   function animate(now) {
     var dt = Math.min((now - lastTime) / 1000, 0.1);
     lastTime = now;
 
-    // Idle Cosmic Drift
-    autoSpinY += 0.0006;
-    autoSpinX += 0.0003;
+    // Smooth camera inertia
+    mouse.currRotY += (mouse.targetRotY - mouse.currRotY) * 0.05;
+    mouse.currRotX += (mouse.targetRotX - mouse.currRotX) * 0.05;
 
-    // Smooth Damped Rotation Lerping
-    mouse.currRotY += (mouse.targetRotY + mouse.velRotY - mouse.currRotY) * 0.06;
-    mouse.currRotX += (mouse.targetRotX + mouse.velRotX - mouse.currRotX) * 0.06;
+    // ⚡ THUNDERSTORM TIMING CYCLE
+    storm.strikeTimer += dt;
+    if (storm.strikeTimer >= storm.nextStrikeInterval) {
+      storm.strikeTimer = 0;
+      storm.nextStrikeInterval = Math.random() * 2.2 + 1.2; // Strikes every 1.2 - 3.4 seconds
 
-    mouse.velRotY *= 0.92;
-    mouse.velRotX *= 0.92;
-
-    scrollOffsetZ += (targetScrollOffsetZ - scrollOffsetZ) * 0.08;
-
-    var totalRotY = mouse.currRotY + autoSpinY;
-    var totalRotX = mouse.currRotX + Math.sin(autoSpinX) * 0.15;
-
-    var cosY = Math.cos(totalRotY);
-    var sinY = Math.sin(totalRotY);
-    var cosX = Math.cos(totalRotX);
-    var sinX = Math.sin(totalRotX);
-
-    // ⚡ THUNDER CYCLE UPDATE
-    thunderState.timer += dt;
-    if (thunderState.timer >= thunderState.nextStrikeTime) {
-      thunderState.timer = 0;
-      thunderState.nextStrikeTime = Math.random() * 4.5 + 2.8; // Random interval
-      var isSheet = Math.random() < 0.25; // 25% sheet thunder, 75% forked bolts
-      triggerLightningStrike(isSheet);
+      if (Math.random() < 0.75) {
+        triggerMajorStrike();
+      } else {
+        triggerSheetLightning();
+      }
     }
 
-    // Decay ambient thunder flash
-    thunderState.ambientFlash *= 0.88;
-    if (thunderState.ambientFlash < 0.01) thunderState.ambientFlash = 0;
+    // Flash decay
+    storm.ambientFlash *= 0.85;
+    if (storm.ambientFlash < 0.01) storm.ambientFlash = 0;
 
-    // Clear Canvas
+    // Clear with stormy dark gradient
     ctx.clearRect(0, 0, W, H);
 
-    // ⚡ DRAW THUNDER FLASH AMBIENT SKY GLOW
-    if (thunderState.ambientFlash > 0.02) {
+    var bgGrad = ctx.createRadialGradient(W / 2 + mouse.currRotY * 100, H * 0.3 + mouse.currRotX * 50, 80, W / 2, H / 2, Math.max(W, H));
+    bgGrad.addColorStop(0, '#061026');
+    bgGrad.addColorStop(0.5, '#030816');
+    bgGrad.addColorStop(1, '#010308');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // ⚡ 1. DRAW AMBIENT THUNDER STROBE FLASH
+    if (storm.ambientFlash > 0.02) {
       ctx.save();
-      ctx.fillStyle = thunderState.flashColor + (thunderState.ambientFlash * 0.35).toFixed(3) + ')';
+      // Sky strobe
+      ctx.fillStyle = storm.flashColor + (storm.ambientFlash * 0.4).toFixed(3) + ')';
       ctx.fillRect(0, 0, W, H);
 
-      // Radial strobe center
-      var flashGrad = ctx.createRadialGradient(W / 2, H * 0.3, 50, W / 2, H * 0.3, Math.max(W, H) * 0.8);
-      flashGrad.addColorStop(0, 'rgba(255, 255, 255, ' + (thunderState.ambientFlash * 0.4).toFixed(3) + ')');
-      flashGrad.addColorStop(0.5, 'rgba(0, 240, 255, ' + (thunderState.ambientFlash * 0.25).toFixed(3) + ')');
-      flashGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = flashGrad;
+      // Blinding white radial core
+      var strobeGrad = ctx.createRadialGradient(W / 2, H * 0.25, 40, W / 2, H * 0.25, Math.max(W, H) * 0.85);
+      strobeGrad.addColorStop(0, 'rgba(255, 255, 255, ' + (storm.ambientFlash * 0.55).toFixed(3) + ')');
+      strobeGrad.addColorStop(0.4, 'rgba(0, 240, 255, ' + (storm.ambientFlash * 0.35).toFixed(3) + ')');
+      strobeGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = strobeGrad;
       ctx.fillRect(0, 0, W, H);
       ctx.restore();
     }
 
-    // 1. Draw 3D Parallax Nebulae / Thunderstorm Clouds
-    for (var n = 0; n < nebulae.length; n++) {
-      var neb = nebulae[n];
-      var ny1 = neb.y * cosX - neb.z * sinX;
-      var nz1 = neb.y * sinX + neb.z * cosX;
-      var nx2 = neb.x * cosY + nz1 * sinY;
-      var nz2 = -neb.x * sinY + nz1 * cosY + 600;
-
-      if (nz2 > 50) {
-        var nScale = FOV / nz2;
-        var npx = W / 2 + nx2 * nScale;
-        var npy = H / 2 + ny1 * nScale;
-        var nRadius = neb.r * nScale;
-
-        if (npx + nRadius > 0 && npx - nRadius < W && npy + nRadius > 0 && npy - nRadius < H) {
-          var grad = ctx.createRadialGradient(npx, npy, 0, npx, npy, Math.max(10, nRadius));
-          grad.addColorStop(0, neb.color);
-          // Storm clouds glow during lightning
-          if (thunderState.ambientFlash > 0.05) {
-            grad.addColorStop(0.4, 'rgba(0, 240, 255, ' + (thunderState.ambientFlash * neb.stormAlpha).toFixed(3) + ')');
-          }
-          grad.addColorStop(1, 'transparent');
-          ctx.fillStyle = grad;
-          ctx.beginPath();
-          ctx.arc(npx, npy, Math.max(10, nRadius), 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-    }
-
-    // 2. Project and Sort Stars
-    var visibleStars = [];
-    for (var i = 0; i < stars.length; i++) {
-      var s = stars[i];
-
-      var sz = s.z - scrollOffsetZ;
-      while (sz < -BOUNDS) sz += BOUNDS * 2;
-      while (sz > BOUNDS) sz -= BOUNDS * 2;
-
-      var y1 = s.y * cosX - sz * sinX;
-      var z1 = s.y * sinX + sz * cosX;
-      var x2 = s.x * cosY + z1 * sinY;
-      var z2 = -s.x * sinY + z1 * cosY + 750;
-
-      if (z2 > 40) {
-        var scale = FOV / z2;
-        s.px = W / 2 + x2 * scale;
-        s.py = H / 2 + y1 * scale;
-        s.scale = scale;
-        s.z2 = z2;
-        s.visible = s.px >= -20 && s.px <= W + 20 && s.py >= -20 && s.py <= H + 20;
-
-        if (s.visible) {
-          visibleStars.push(s);
-        }
-      } else {
-        s.visible = false;
-      }
-    }
-
-    // 3. Draw Constellation Links
-    ctx.lineWidth = 0.6;
-    var maxLinks = 40;
-    var linkCount = 0;
-    for (var i = 0; i < visibleStars.length && linkCount < maxLinks; i++) {
-      var s1 = visibleStars[i];
-      if (!s1.isHero && Math.random() > 0.4) continue;
-
-      for (var j = i + 1; j < visibleStars.length && linkCount < maxLinks; j++) {
-        var s2 = visibleStars[j];
-        var ddx = s1.px - s2.px;
-        var ddy = s1.py - s2.py;
-        var distSq = ddx * ddx + ddy * ddy;
-
-        if (distSq < 4900) {
-          var dist = Math.sqrt(distSq);
-          var alpha = (1 - dist / 70) * (0.22 + thunderState.ambientFlash * 0.3) * Math.min(s1.scale, s2.scale) * 1.5;
-          ctx.strokeStyle = 'rgba(0, 240, 255, ' + alpha.toFixed(3) + ')';
-          ctx.beginPath();
-          ctx.moveTo(s1.px, s1.py);
-          ctx.lineTo(s2.px, s2.py);
-          ctx.stroke();
-          linkCount++;
-        }
-      }
-    }
-
-    // 4. Render Stars
-    for (var i = 0; i < visibleStars.length; i++) {
-      var s = visibleStars[i];
-      s.twinklePhase += s.twinkleSpeed;
-      var twinkle = 0.7 + 0.3 * Math.sin(s.twinklePhase);
-      var depthAlpha = Math.max(0.12, Math.min(1.0, (1400 - s.z2) / 1000));
-      var finalAlpha = Math.min(1.0, depthAlpha * twinkle + thunderState.ambientFlash * 0.4);
-      var radius = Math.max(0.4, s.baseSize * s.scale * 1.4);
-
-      var c = s.color;
-
-      if (s.halo && radius > 1.2) {
-        var haloRadius = radius * 3.8;
-        var haloGrad = ctx.createRadialGradient(s.px, s.py, 0, s.px, s.py, haloRadius);
-        haloGrad.addColorStop(0, 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + (finalAlpha * 0.45).toFixed(3) + ')');
-        haloGrad.addColorStop(1, 'transparent');
-        ctx.fillStyle = haloGrad;
-        ctx.beginPath();
-        ctx.arc(s.px, s.py, haloRadius, 0, Math.PI * 2);
-        ctx.fill();
+    // ⚡ 2. DRAW SHEET LIGHTNING IN CLOUDS
+    for (var sIdx = storm.sheetFlashes.length - 1; sIdx >= 0; sIdx--) {
+      var sFlash = storm.sheetFlashes[sIdx];
+      sFlash.life -= sFlash.decay;
+      if (sFlash.life <= 0) {
+        storm.sheetFlashes.splice(sIdx, 1);
+        continue;
       }
 
-      ctx.fillStyle = 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + finalAlpha.toFixed(3) + ')';
+      var sGrad = ctx.createRadialGradient(sFlash.x, sFlash.y, 0, sFlash.x, sFlash.y, sFlash.r);
+      sGrad.addColorStop(0, 'rgba(255, 255, 255, ' + (sFlash.life * 0.6).toFixed(3) + ')');
+      sGrad.addColorStop(0.4, sFlash.color + (sFlash.life * 0.45).toFixed(3) + ')');
+      sGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = sGrad;
       ctx.beginPath();
-      ctx.arc(s.px, s.py, radius, 0, Math.PI * 2);
+      ctx.arc(sFlash.x, sFlash.y, sFlash.r, 0, Math.PI * 2);
       ctx.fill();
-
-      if (radius > 1.8) {
-        ctx.fillStyle = 'rgba(255, 255, 255, ' + finalAlpha.toFixed(3) + ')';
-        ctx.beginPath();
-        ctx.arc(s.px, s.py, radius * 0.45, 0, Math.PI * 2);
-        ctx.fill();
-      }
     }
 
-    // 5. Update & Render 3D Planetary Systems
-    for (var pIdx = 0; pIdx < planets.length; pIdx++) {
-      var p = planets[pIdx];
-      p.orbitAngle += p.orbitSpeed;
-      p.selfRot += p.selfRotSpeed;
+    // ⚡ 3. DRAW VOLUMETRIC STORM CLOUDS
+    for (var cIdx = 0; cIdx < clouds.length; cIdx++) {
+      var c = clouds[cIdx];
+      c.x += c.vx;
+      c.y += c.vy;
 
-      var rawPlanetX = Math.cos(p.orbitAngle) * p.orbitRadius;
-      var rawPlanetZ = Math.sin(p.orbitAngle) * p.orbitRadius;
-      var rawPlanetY = Math.sin(p.orbitAngle * 1.5) * (p.orbitRadius * p.orbitTilt);
+      // Wrap around screen
+      if (c.x - c.r > W + 50) c.x = -c.r - 20;
+      if (c.x + c.r < -100) c.x = W + c.r + 20;
 
-      var py1 = rawPlanetY * cosX - rawPlanetZ * sinX;
-      var pz1 = rawPlanetY * sinX + rawPlanetZ * cosX;
-      var px2 = rawPlanetX * cosY + pz1 * sinY;
-      var pz2 = -rawPlanetX * sinY + pz1 * cosY + 700;
+      var cpx = c.x + mouse.currRotY * 40;
+      var cpy = c.y + mouse.currRotX * 30;
 
-      p.z2 = pz2;
-      if (pz2 > 50) {
-        var pScale = FOV / pz2;
-        p.px = W / 2 + px2 * pScale;
-        p.py = H / 2 + py1 * pScale;
-        p.scale = pScale;
-        p.renderedRadius = p.baseRadius * pScale;
-        p.visible = p.px + p.renderedRadius > -100 && p.px - p.renderedRadius < W + 100 &&
-                    p.py + p.renderedRadius > -100 && p.py - p.renderedRadius < H + 100;
+      var cloudGrad = ctx.createRadialGradient(cpx, cpy, 0, cpx, cpy, c.r);
+      // Cloud illuminates dynamically on lightning strikes
+      if (storm.ambientFlash > 0.05) {
+        cloudGrad.addColorStop(0, c.glowBase + (storm.ambientFlash * 0.4).toFixed(3) + ')');
+        cloudGrad.addColorStop(0.4, 'rgba(0, 240, 255, ' + (storm.ambientFlash * 0.25).toFixed(3) + ')');
+        cloudGrad.addColorStop(1, 'transparent');
       } else {
-        p.visible = false;
+        cloudGrad.addColorStop(0, c.colorBase + c.density + ')');
+        cloudGrad.addColorStop(0.7, c.colorBase + (c.density * 0.4).toFixed(2) + ')');
+        cloudGrad.addColorStop(1, 'transparent');
       }
 
-      if (p.hasMoon && p.visible) {
-        p.moonAngle += p.moonOrbitSpeed;
-        var rawMoonX = rawPlanetX + Math.cos(p.moonAngle) * p.moonOrbitRadius;
-        var rawMoonZ = rawPlanetZ + Math.sin(p.moonAngle) * p.moonOrbitRadius;
-        var rawMoonY = rawPlanetY + Math.sin(p.moonAngle) * (p.moonOrbitRadius * 0.4);
-
-        var my1 = rawMoonY * cosX - rawMoonZ * sinX;
-        var mz1 = rawMoonY * sinX + rawMoonZ * cosX;
-        var mx2 = rawMoonX * cosY + mz1 * sinY;
-        var mz2 = -rawMoonX * sinY + mz1 * cosY + 700;
-
-        if (mz2 > 50) {
-          var mScale = FOV / mz2;
-          p.moon = {
-            px: W / 2 + mx2 * mScale,
-            py: H / 2 + my1 * mScale,
-            z2: mz2,
-            scale: mScale
-          };
-        }
-      }
-    }
-
-    var sortedPlanets = planets.slice().sort(function (a, b) {
-      return b.z2 - a.z2;
-    });
-
-    for (var pIdx = 0; pIdx < sortedPlanets.length; pIdx++) {
-      var p = sortedPlanets[pIdx];
-      if (!p.visible) continue;
-
-      if (p.hasRings) {
-        drawPlanetRings(p, p.px, p.py, p.scale, false);
-      }
-
-      if (p.hasMoon && p.moon && p.moon.z2 >= p.z2) {
-        drawMoon(p);
-      }
-
-      drawPlanetBody(p, p.px, p.py, p.renderedRadius, p.scale, totalRotX, totalRotY, thunderState.ambientFlash);
-
-      if (p.hasRings) {
-        drawPlanetRings(p, p.px, p.py, p.scale, true);
-      }
-
-      if (p.hasMoon && p.moon && p.moon.z2 < p.z2) {
-        drawMoon(p);
-      }
-    }
-
-    // ⚡ 6. RENDER ACTIVE LIGHTNING BOLTS (Triple Pass Bloom)
-    for (var bIdx = thunderState.activeBolts.length - 1; bIdx >= 0; bIdx--) {
-      var activeBolt = thunderState.activeBolts[bIdx];
-      activeBolt.life -= activeBolt.decay;
-
-      if (activeBolt.life <= 0) {
-        thunderState.activeBolts.splice(bIdx, 1);
-        continue;
-      }
-
-      // Strobe flickering
-      activeBolt.strobeTimer++;
-      var isStrobeVisible = activeBolt.strobeCount <= 0 || (activeBolt.strobeTimer % 2 === 0);
-      if (!isStrobeVisible) continue;
-
-      var boltObj = activeBolt.bolt;
-      var alpha = activeBolt.life;
-
-      // Pass 1: Massive Outer Bloom
-      renderLightningPath(boltObj.trunk, 14 * alpha, activeBolt.glowColor, 28, activeBolt.glowColor);
-      for (var k = 0; k < boltObj.branches.length; k++) {
-        renderLightningPath(boltObj.branches[k], 8 * alpha, activeBolt.glowColor, 18, activeBolt.glowColor);
-      }
-
-      // Pass 2: Electric Cyan / Violet Mid-Core
-      renderLightningPath(boltObj.trunk, 4.5 * alpha, 'rgba(0, 240, 255, ' + (alpha * 0.9).toFixed(2) + ')', 12, '#00f0ff');
-      for (var k = 0; k < boltObj.branches.length; k++) {
-        renderLightningPath(boltObj.branches[k], 2.5 * alpha, 'rgba(0, 240, 255, ' + (alpha * 0.8).toFixed(2) + ')', 8, '#00f0ff');
-      }
-
-      // Pass 3: Blinding Pure White Hot Core
-      renderLightningPath(boltObj.trunk, 1.8 * alpha, 'rgba(255, 255, 255, ' + alpha.toFixed(2) + ')', 0, '');
-      for (var k = 0; k < boltObj.branches.length; k++) {
-        renderLightningPath(boltObj.branches[k], 1.0 * alpha, 'rgba(255, 255, 255, ' + (alpha * 0.9).toFixed(2) + ')', 0, '');
-      }
-    }
-
-    // ⚡ 7. RENDER INTERACTIVE PLASMA TENDRILS (Cursor/Touch sparks)
-    for (var tIdx = thunderState.plasmaTendrils.length - 1; tIdx >= 0; tIdx--) {
-      var tendril = thunderState.plasmaTendrils[tIdx];
-      tendril.life -= tendril.decay;
-
-      if (tendril.life <= 0) {
-        thunderState.plasmaTendrils.splice(tIdx, 1);
-        continue;
-      }
-
-      renderLightningPath(tendril.path, 3.5 * tendril.life, tendril.color, 12, tendril.color);
-      renderLightningPath(tendril.path, 1.2 * tendril.life, '#ffffff', 0, '');
-    }
-
-    // 8. Spawn & Draw Meteors / Shooting Stars
-    meteorTimer += dt;
-    if (meteorTimer > 2.5 + Math.random() * 2) {
-      meteorTimer = 0;
-      spawnMeteor();
-    }
-
-    for (var m = meteors.length - 1; m >= 0; m--) {
-      var met = meteors[m];
-      met.x += met.vx;
-      met.y += met.vy;
-      met.z += met.vz;
-      met.life -= met.decay;
-
-      if (met.life <= 0) {
-        meteors.splice(m, 1);
-        continue;
-      }
-
-      var headX = W / 2 + met.x;
-      var headY = H / 2 + met.y;
-      var tailX = headX - met.vx * (met.length / 15);
-      var tailY = headY - met.vy * (met.length / 15);
-
-      var mGrad = ctx.createLinearGradient(headX, headY, tailX, tailY);
-      mGrad.addColorStop(0, met.color);
-      mGrad.addColorStop(0.3, 'rgba(0, 240, 255, ' + (met.life * 0.7).toFixed(2) + ')');
-      mGrad.addColorStop(1, 'transparent');
-
-      ctx.strokeStyle = mGrad;
-      ctx.lineWidth = Math.max(1, 2.5 * met.life);
+      ctx.fillStyle = cloudGrad;
       ctx.beginPath();
-      ctx.moveTo(headX, headY);
-      ctx.lineTo(tailX, tailY);
+      ctx.arc(cpx, cpy, c.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // ⚡ 4. DRAW RAIN STREAKS (ILLUMINATED DURING THUNDER)
+    ctx.lineWidth = 1.0;
+    for (var rIdx = 0; rIdx < raindrops.length; rIdx++) {
+      var drop = raindrops[rIdx];
+      drop.x += drop.slant * drop.speed;
+      drop.y += drop.speed;
+
+      if (drop.y > H + 30 || drop.x < -100 || drop.x > W + 100) {
+        drop.x = Math.random() * (W + 200) - 50;
+        drop.y = -20;
+      }
+
+      var rainAlpha = Math.min(1.0, drop.alpha + storm.ambientFlash * 0.55);
+      var rainColor = storm.ambientFlash > 0.1
+        ? 'rgba(0, 240, 255, ' + rainAlpha.toFixed(2) + ')'
+        : 'rgba(148, 163, 184, ' + (drop.alpha * 0.4).toFixed(2) + ')';
+
+      ctx.strokeStyle = rainColor;
+      ctx.lineWidth = drop.width;
+      ctx.beginPath();
+      ctx.moveTo(drop.x, drop.y);
+      ctx.lineTo(drop.x - drop.slant * drop.length, drop.y + drop.length);
       ctx.stroke();
+    }
 
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(headX, headY, 1.8 * met.life, 0, Math.PI * 2);
-      ctx.fill();
+    // ⚡ 5. RENDER ACTIVE MAJOR LIGHTNING BOLTS (Triple Pass Bloom)
+    for (var bIdx = storm.activeBolts.length - 1; bIdx >= 0; bIdx--) {
+      var bolt = storm.activeBolts[bIdx];
+      bolt.life -= bolt.decay;
+
+      if (bolt.life <= 0) {
+        storm.activeBolts.splice(bIdx, 1);
+        continue;
+      }
+
+      // Multi-strobe flicker
+      bolt.strobePhase++;
+      var isStrobe = bolt.strobeFlashes <= 0 || (bolt.strobePhase % 2 === 0);
+      if (!isStrobe) continue;
+
+      var alpha = bolt.life;
+
+      // Pass 1: Massive Ionization Bloom Glow
+      renderLightningStroke(bolt.trunk, 18 * alpha, bolt.colorGlow, 32, bolt.colorGlow);
+      for (var k = 0; k < bolt.branches.length; k++) {
+        renderLightningStroke(bolt.branches[k], 10 * alpha, bolt.colorGlow, 20, bolt.colorGlow);
+      }
+
+      // Pass 2: Electric Core Stroke
+      renderLightningStroke(bolt.trunk, 5.5 * alpha, bolt.colorMid, 14, '#00f0ff');
+      for (var k = 0; k < bolt.branches.length; k++) {
+        renderLightningStroke(bolt.branches[k], 3.0 * alpha, bolt.colorMid, 8, '#00f0ff');
+      }
+
+      // Pass 3: Blinding White-Hot Energy Filament
+      renderLightningStroke(bolt.trunk, 2.2 * alpha, 'rgba(255, 255, 255, ' + alpha.toFixed(2) + ')', 0, '');
+      for (var k = 0; k < bolt.branches.length; k++) {
+        renderLightningStroke(bolt.branches[k], 1.2 * alpha, 'rgba(255, 255, 255, ' + (alpha * 0.95).toFixed(2) + ')', 0, '');
+      }
+
+      // Ground / Space Splash Spark at impact point
+      if (bolt.trunk.length > 0) {
+        var impactPt = bolt.trunk[bolt.trunk.length - 1];
+        ctx.save();
+        var impactGrad = ctx.createRadialGradient(impactPt.x, impactPt.y, 0, impactPt.x, impactPt.y, 45 * alpha);
+        impactGrad.addColorStop(0, 'rgba(255, 255, 255, ' + alpha.toFixed(2) + ')');
+        impactGrad.addColorStop(0.4, 'rgba(0, 240, 255, ' + (alpha * 0.7).toFixed(2) + ')');
+        impactGrad.addColorStop(1, 'transparent');
+        ctx.fillStyle = impactGrad;
+        ctx.beginPath();
+        ctx.arc(impactPt.x, impactPt.y, 45 * alpha, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    // ⚡ 6. RENDER INTERACTIVE CURSOR TESLA ARCS
+    for (var aIdx = storm.interactiveArcs.length - 1; aIdx >= 0; aIdx--) {
+      var arc = storm.interactiveArcs[aIdx];
+      arc.life -= arc.decay;
+
+      if (arc.life <= 0) {
+        storm.interactiveArcs.splice(aIdx, 1);
+        continue;
+      }
+
+      renderLightningStroke(arc.path, 4.0 * arc.life, arc.color, 14, arc.color);
+      renderLightningStroke(arc.path, 1.5 * arc.life, '#ffffff', 0, '');
     }
 
     requestAnimationFrame(animate);
