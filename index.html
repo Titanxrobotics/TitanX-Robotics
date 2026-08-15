@@ -422,7 +422,7 @@
           loader.style.pointerEvents = "none";
           setTimeout(() => {
             loader.style.display = "none";
-            if (window.TitanXAudio) {
+            if (window.TitanXAudio && !window.TitanXAudio.isPaused()) {
               window.TitanXAudio.play();
             }
           }, 800);

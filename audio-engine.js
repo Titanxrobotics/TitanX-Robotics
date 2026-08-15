@@ -1,5 +1,6 @@
 // ==========================================================================
-// TITANX ROBOTICS - ROBUST UNIVERSAL AUDIO ENGINE v3.0
+// TITANX ROBOTICS - ROBUST UNIVERSAL AUDIO ENGINE v4.0
+// Fully Reliable Play/Pause, Race-Condition Protection & State Persistence
 // ==========================================================================
 (function () {
   'use strict';
@@ -32,8 +33,13 @@
     });
   }
 
-  var savedVol = parseFloat(localStorage.getItem('titanx_vol') || '0.6');
-  audio.volume = savedVol;
+  // Saved Volume (default 0.5)
+  var savedVol = parseFloat(localStorage.getItem('titanx_vol') || '0.5');
+  audio.volume = Math.max(0, Math.min(1, savedVol));
+
+  // User Pause State persistence (check both localStorage and sessionStorage)
+  var isUserPaused = (localStorage.getItem('titanx_audio_paused') === 'true') ||
+                     (sessionStorage.getItem('titanx_audio_paused') === 'true');
 
   var widget    = document.getElementById('audioWidget');
   var toggleBtn = document.getElementById('audioToggleBtn');
@@ -42,7 +48,7 @@
   var volSlider = document.getElementById('volumeSlider');
 
   if (volSlider) {
-    volSlider.value = savedVol;
+    volSlider.value = audio.volume;
   }
 
   function updateUI(playing) {
@@ -61,8 +67,135 @@
     }
   }
 
+  // Promise tracking to prevent browser async race conditions
+  var currentPlayPromise = null;
+  var isStarting = false;
+
+  function startAudio(force) {
+    // If not forced and user chose to pause, do nothing
+    if (!force && isUserPaused) {
+      updateUI(false);
+      return;
+    }
+
+    isUserPaused = false;
+    localStorage.setItem('titanx_audio_paused', 'false');
+    sessionStorage.setItem('titanx_audio_paused', 'false');
+
+    if (audio.volume === 0) {
+      audio.volume = 0.5;
+      if (volSlider) volSlider.value = 0.5;
+      localStorage.setItem('titanx_vol', '0.5');
+    }
+
+    isStarting = true;
+    try {
+      currentPlayPromise = audio.play();
+      if (currentPlayPromise !== undefined) {
+        currentPlayPromise.then(function () {
+          isStarting = false;
+          // If user clicked pause while play() was pending in background, pause immediately!
+          if (isUserPaused) {
+            audio.pause();
+            updateUI(false);
+          } else {
+            updateUI(true);
+          }
+        }).catch(function (err) {
+          isStarting = false;
+          console.log('Audio autoplay blocked / waiting for interaction:', err);
+          updateUI(false);
+        });
+      } else {
+        isStarting = false;
+        updateUI(!audio.paused);
+      }
+    } catch (e) {
+      isStarting = false;
+      console.warn('Audio play exception:', e);
+      updateUI(false);
+    }
+  }
+
+  function pauseAudio() {
+    isUserPaused = true;
+    localStorage.setItem('titanx_audio_paused', 'true');
+    sessionStorage.setItem('titanx_audio_paused', 'true');
+
+    try {
+      audio.pause();
+    } catch (e) {
+      console.warn('Audio pause error:', e);
+    }
+
+    // Also handle if a play promise was in-flight
+    if (currentPlayPromise && currentPlayPromise.then) {
+      currentPlayPromise.then(function () {
+        audio.pause();
+        updateUI(false);
+      }).catch(function () {
+        updateUI(false);
+      });
+    }
+
+    updateUI(false);
+  }
+
+  function toggleAudio() {
+    if (audio.paused || isUserPaused) {
+      startAudio(true);
+    } else {
+      pauseAudio();
+    }
+  }
+
+  // Bind widget click (safeguarded against duplicate triggers)
+  if (widget) {
+    widget.addEventListener('click', function (e) {
+      // Ignore if user is dragging volume slider
+      if (volSlider && (e.target === volSlider || volSlider.contains(e.target))) {
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      toggleAudio();
+    });
+  }
+
+  if (toggleBtn && toggleBtn !== widget) {
+    toggleBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleAudio();
+    });
+  }
+
+  // Volume slider
+  if (volSlider) {
+    volSlider.addEventListener('input', function (e) {
+      e.stopPropagation();
+      var val = parseFloat(e.target.value);
+      audio.volume = val;
+      localStorage.setItem('titanx_vol', val.toString());
+      if (val === 0) {
+        pauseAudio();
+      } else if (audio.paused && !isUserPaused) {
+        startAudio();
+      }
+    });
+    volSlider.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+  }
+
+  // Audio element native event listeners
   audio.addEventListener('play', function () {
-    updateUI(true);
+    if (isUserPaused) {
+      audio.pause();
+      updateUI(false);
+    } else {
+      updateUI(true);
+    }
   });
 
   audio.addEventListener('pause', function () {
@@ -73,78 +206,39 @@
     updateUI(false);
   });
 
-  function startAudio() {
-    sessionStorage.setItem('titanx_paused', 'false');
-    var playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise.then(function () {
-        updateUI(true);
-      }).catch(function (err) {
-        console.log('Autoplay deferred until user interaction:', err);
-        updateUI(false);
-      });
-    }
-  }
+  // User gesture unlock for initial autoplay
+  var hasUnlocked = false;
+  function handleInitialGesture(e) {
+    if (hasUnlocked) return;
 
-  function pauseAudio() {
-    audio.pause();
-    sessionStorage.setItem('titanx_paused', 'true');
-    updateUI(false);
-  }
+    // Do not auto-play if clicked specifically on the widget
+    var isWidgetClick = e && e.target && (
+      (widget && (e.target === widget || widget.contains(e.target))) ||
+      (toggleBtn && (e.target === toggleBtn || toggleBtn.contains(e.target)))
+    );
 
-  function toggleAudio() {
-    if (audio.paused) {
-      startAudio();
-    } else {
-      pauseAudio();
-    }
-  }
+    hasUnlocked = true;
 
-  // Widget interactions
-  if (widget) {
-    widget.addEventListener('click', function (e) {
-      if (volSlider && (e.target === volSlider || volSlider.contains(e.target))) {
-        return;
-      }
-      e.preventDefault();
-      toggleAudio();
+    // Remove listener after first interaction
+    ['click', 'touchstart', 'keydown'].forEach(function (evt) {
+      document.removeEventListener(evt, handleInitialGesture, false);
     });
-  }
 
-  if (volSlider) {
-    volSlider.addEventListener('input', function (e) {
-      e.stopPropagation();
-      var val = parseFloat(e.target.value);
-      audio.volume = val;
-      localStorage.setItem('titanx_vol', val);
-      if (val > 0 && audio.paused && sessionStorage.getItem('titanx_paused') !== 'true') {
-        startAudio();
-      }
-    });
-  }
-
-  // Autoplay unlock on first user gesture anywhere on page
-  var unlocked = false;
-  function unlockOnGesture() {
-    if (unlocked) return;
-    if (sessionStorage.getItem('titanx_paused') !== 'true') {
+    if (!isWidgetClick && !isUserPaused) {
       startAudio();
     }
-    unlocked = true;
-    ['click', 'touchstart', 'pointerdown', 'keydown'].forEach(function (evt) {
-      document.removeEventListener(evt, unlockOnGesture, true);
-    });
   }
 
-  ['click', 'touchstart', 'pointerdown', 'keydown'].forEach(function (evt) {
-    document.addEventListener(evt, unlockOnGesture, { capture: true, once: true, passive: true });
+  ['click', 'touchstart', 'keydown'].forEach(function (evt) {
+    document.addEventListener(evt, handleInitialGesture, false);
   });
 
-  // Attempt immediate play
-  var userExplicitlyPaused = sessionStorage.getItem('titanx_paused') === 'true';
-  if (!userExplicitlyPaused) {
+  // Initial startup check
+  if (!isUserPaused) {
     setTimeout(function () {
-      startAudio();
+      if (!isUserPaused) {
+        startAudio();
+      }
     }, 400);
   } else {
     updateUI(false);
@@ -152,10 +246,11 @@
 
   // Global API
   window.TitanXAudio = {
-    play: startAudio,
+    play: function (force) { startAudio(force); },
     pause: pauseAudio,
     toggle: toggleAudio,
-    element: audio
+    element: audio,
+    isPaused: function () { return isUserPaused || audio.paused; }
   };
 
 })();
