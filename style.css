@@ -5,33 +5,37 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-primary: #040711;
-  --bg-secondary: #0a0f1d;
-  --bg-tertiary: #111827;
-  --bg-card: rgba(13, 20, 38, 0.65);
-  --bg-card-hover: rgba(20, 32, 60, 0.8);
-  --border-cyan: rgba(0, 240, 255, 0.25);
+  --bg-primary: #02050f;
+  --bg-secondary: #060c1c;
+  --bg-tertiary: #0b152d;
+  --bg-card: rgba(8, 15, 30, 0.82);
+  --bg-card-hover: rgba(14, 25, 52, 0.92);
+  --border-cyan: rgba(0, 240, 255, 0.32);
   --border-cyan-bright: #00f0ff;
-  --border-purple: rgba(168, 85, 247, 0.3);
+  --border-purple: rgba(168, 85, 247, 0.35);
+  --border-gold: rgba(245, 158, 11, 0.4);
   
   --neon-cyan: #00f0ff;
+  --neon-gold: #fbbf24;
+  --neon-amber: #f59e0b;
   --neon-purple: #a855f7;
   --neon-emerald: #10b981;
   --neon-pink: #ec4899;
-  --neon-blue: #3b82f6;
+  --neon-blue: #38bdf8;
 
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
+  --text-main: #ffffff;
+  --text-muted: #e2e8f0;
+  --text-dim: #94a3b8;
 
   --font-display: 'Orbitron', -apple-system, sans-serif;
   --font-heading: 'Rajdhani', -apple-system, sans-serif;
   --font-body: 'Outfit', -apple-system, sans-serif;
 
-  --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.4), 0 0 40px rgba(0, 240, 255, 0.15);
-  --glow-purple: 0 0 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(168, 85, 247, 0.15);
-  --glow-cyan-subtle: 0 0 12px rgba(0, 240, 255, 0.25);
-  --glow-box: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(0, 240, 255, 0.15);
+  --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.5), 0 0 40px rgba(0, 240, 255, 0.2);
+  --glow-gold: 0 0 20px rgba(251, 191, 36, 0.5), 0 0 40px rgba(245, 158, 11, 0.2);
+  --glow-purple: 0 0 20px rgba(168, 85, 247, 0.45), 0 0 40px rgba(168, 85, 247, 0.15);
+  --glow-cyan-subtle: 0 0 12px rgba(0, 240, 255, 0.3);
+  --glow-box: 0 8px 32px 0 rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(0, 240, 255, 0.2);
 }
 
 /* --- Base Resets --- */
@@ -154,10 +158,11 @@ h1, h2, h3, h4, .font-display {
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #00f0ff 0%, #a855f7 50%, #38bdf8 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #00f0ff 45%, #fbbf24 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
+  filter: drop-shadow(0 2px 12px rgba(0, 240, 255, 0.35));
 }
 
 .text-glow {

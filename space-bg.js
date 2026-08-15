@@ -2,7 +2,7 @@
  * ============================================================================
  * TITANX ROBOTICS - CINEMATIC THUNDERSTORM & GOLDEN/AZURE LIGHTNING ENGINE
  * Photorealistic Thunderstorm Atmosphere with Live Golden-Amber & Azure Lightning,
- * Cloud Illumination Strobes, Interactive Tesla Arcs & Rain Streaks.
+ * Cloud Illumination Strobes & Interactive Click/Touch Tesla Arcs (No Rain).
  * ============================================================================
  */
 (function () {
@@ -47,36 +47,13 @@
   // Thunder Engine State
   var storm = {
     strikeTimer: 0,
-    nextStrikeInterval: 1.8, // Strikes every 1.5 - 3.5 seconds
+    nextStrikeInterval: 2.0, // Natural strike timing
     ambientFlash: 0,
     flashColor: 'rgba(245, 158, 11, ', // Golden amber storm flash
     activeBolts: [],
     sheetFlashes: [],
     interactiveArcs: []
   };
-
-  // Angled Storm Rain
-  var RAIN_COUNT = Math.min(220, Math.floor((W * H) / 4800));
-  var raindrops = [];
-
-  function createRaindrop(initY) {
-    return {
-      x: Math.random() * (W + 300) - 150,
-      y: initY ? Math.random() * H : -20,
-      length: Math.random() * 24 + 16,
-      speed: Math.random() * 18 + 20,
-      slant: -0.25,
-      alpha: Math.random() * 0.4 + 0.2,
-      width: Math.random() * 1.2 + 0.5
-    };
-  }
-
-  function initRain() {
-    raindrops = [];
-    for (var i = 0; i < RAIN_COUNT; i++) {
-      raindrops.push(createRaindrop(true));
-    }
-  }
 
   // ==========================================================================
   // ⚡ PROCEDURAL FRACTAL LIGHTNING GENERATOR (GOLDEN & AZURE)
@@ -116,7 +93,7 @@
       branches.push(bPath);
     }
 
-    var isGolden = Math.random() > 0.3; // 70% golden amber like screenshot, 30% azure
+    var isGolden = Math.random() > 0.3;
     return {
       trunk: trunk,
       branches: branches,
@@ -184,8 +161,6 @@
   function handleResize() {
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
-    RAIN_COUNT = Math.min(220, Math.floor((W * H) / 4800));
-    initRain();
   }
   window.addEventListener('resize', handleResize);
 
@@ -227,8 +202,6 @@
     }
     triggerMajorStrike(e.clientX, e.clientY);
   });
-
-  initRain();
 
   // Helper to draw lightning polyline
   function renderLightningStroke(points, width, color, shadowBlur, shadowColor) {
@@ -311,31 +284,7 @@
       ctx.fill();
     }
 
-    // ⚡ 3. DRAW ELECTRIC RAIN STREAKS
-    for (var rIdx = 0; rIdx < raindrops.length; rIdx++) {
-      var drop = raindrops[rIdx];
-      drop.x += drop.slant * drop.speed;
-      drop.y += drop.speed;
-
-      if (drop.y > H + 30 || drop.x < -100 || drop.x > W + 100) {
-        drop.x = Math.random() * (W + 200) - 50;
-        drop.y = -20;
-      }
-
-      var rainAlpha = Math.min(0.9, drop.alpha + storm.ambientFlash * 0.5);
-      var rainColor = storm.ambientFlash > 0.1
-        ? 'rgba(251, 191, 36, ' + rainAlpha.toFixed(2) + ')'
-        : 'rgba(148, 163, 184, ' + (drop.alpha * 0.35).toFixed(2) + ')';
-
-      ctx.strokeStyle = rainColor;
-      ctx.lineWidth = drop.width;
-      ctx.beginPath();
-      ctx.moveTo(drop.x, drop.y);
-      ctx.lineTo(drop.x - drop.slant * drop.length, drop.y + drop.length);
-      ctx.stroke();
-    }
-
-    // ⚡ 4. RENDER GOLDEN & AZURE LIGHTNING BOLTS (Triple Pass Bloom)
+    // ⚡ 3. RENDER GOLDEN & AZURE LIGHTNING BOLTS (Triple Pass Bloom)
     for (var bIdx = storm.activeBolts.length - 1; bIdx >= 0; bIdx--) {
       var bolt = storm.activeBolts[bIdx];
       bolt.life -= bolt.decay;
@@ -385,7 +334,7 @@
       }
     }
 
-    // ⚡ 5. RENDER INTERACTIVE CURSOR TESLA ARCS
+    // ⚡ 4. RENDER INTERACTIVE CURSOR TESLA ARCS
     for (var aIdx = storm.interactiveArcs.length - 1; aIdx >= 0; aIdx--) {
       var arc = storm.interactiveArcs[aIdx];
       arc.life -= arc.decay;
