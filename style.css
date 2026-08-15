@@ -56,7 +56,7 @@ body {
   position: relative;
 }
 
-/* 3D Interactive Space Cosmos Canvas */
+/* ⚡ Cinematic Thunderstorm & Lightning Canvas */
 #titanx-space-canvas {
   position: fixed;
   top: 0;
@@ -65,7 +65,8 @@ body {
   height: 100vh;
   z-index: -2;
   pointer-events: none;
-  background: radial-gradient(ellipse at 50% 50%, #060c1e 0%, #030611 60%, #010206 100%);
+  background: #02040a url('thunder-bg.jpg') no-repeat center center / cover;
+  background-attachment: fixed;
 }
 
 /* Custom Cyber Grid Background Overlay */
