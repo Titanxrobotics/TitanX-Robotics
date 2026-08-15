@@ -538,57 +538,35 @@
 
 
       <ul class="titan-nav-links">
-
         <li><a href="home.html" class="titan-nav-link">Home</a></li>
-
         <li><a href="home.html#events" class="titan-nav-link">Events</a></li>
-
         <li><a href="home.html#projects" class="titan-nav-link">Projects</a></li>
-
         <li><a href="members.html" class="titan-nav-link active">Active Members</a></li>
-
         <li><a href="register.html" class="titan-nav-link">Join Us</a></li>
-
+        <li><a href="#" class="titan-nav-link" onclick="openProfileModal(event)"><span style="color:var(--neon-cyan);">&#128100;</span> Your Profile</a></li>
       </ul>
 
-
-
       <div style="display: flex; gap: 10px; align-items: center;">
-
         <a href="home.html" class="cyber-btn cyber-btn-ghost" style="padding: 8px 16px; font-size: 0.9rem;">
-
           &#11013; Back to Home
-
         </a>
-
       </div>
 
           <!-- Hamburger (mobile) -->
-
         <button class="mob-menu-btn" id="mobMenuBtn" aria-label="Toggle menu" aria-expanded="false">
-
           <span></span><span></span><span></span>
-
         </button>
-
     </nav>
-
   </header>
 
   <!-- Mobile Nav Drawer -->
-
   <nav class="mob-nav-drawer" id="mobDrawer" aria-label="Mobile Navigation">
-
     <a href="home.html">Home</a>
-
     <a href="home.html#events">Events</a>
-
     <a href="members.html" class="active">Members</a>
-
     <a href="register.html" class="">Join Us</a>
-
+    <a href="#" onclick="openProfileModal(event); document.getElementById('mobDrawer').classList.remove('open'); document.getElementById('mobMenuBtn').classList.remove('open');" style="color:var(--neon-cyan);">&#128100; Your Profile</a>
     <a href="index.html" style="color:var(--neon-cyan);">Login</a>
-
   </nav>
 
 
@@ -1213,6 +1191,9 @@
   </footer>
 
 
+
+  <!-- 👤 PROFILE ENGINE -->
+  <script src="profile-engine.js"></script>
 
   <!-- 🌌 3D INTERACTIVE COSMIC SPACE ENGINE -->
   <script src="space-bg.js"></script>
