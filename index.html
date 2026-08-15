@@ -487,10 +487,10 @@
     }, 25);
   </script>
 
-  <!-- 🔥 FIREBASE AUTH -->
+  <!-- 🔥 FIREBASE AUTH WITH SEAMLESS POPUP & REDIRECT FALLBACK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyArTaM2XXi8nSZCykIQi-yeq9zbb4sVauc",
@@ -506,17 +506,54 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    document.getElementById("loginBtn").addEventListener("click", () => {
-      signInWithPopup(auth, provider)
-        .then(() => {
-          sessionStorage.setItem("titanx_audio_user_paused", "false");
+    // Check if user just returned from Google Redirect Authentication
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result && result.user) {
           window.location.href = "home.html";
-        })
-        .catch((error) => {
-          console.error("Firebase Login Error:", error);
-          alert("Login Encountered an Issue: " + (error.message || "Please check popup settings"));
-        });
+        }
+      })
+      .catch((err) => {
+        console.warn("Redirect result handler:", err);
+      });
+
+    // Auto-forward if already authenticated
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "home.html";
+      }
     });
+
+    const loginBtn = document.getElementById("loginBtn");
+    if (loginBtn) {
+      loginBtn.addEventListener("click", () => {
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<span>AUTHENTICATING...</span>';
+
+        signInWithPopup(auth, provider)
+          .then((result) => {
+            if (result && result.user) {
+              window.location.href = "home.html";
+            }
+          })
+          .catch((error) => {
+            console.warn("Popup blocked or closed, falling back to seamless redirect auth:", error);
+            // If popup is blocked by browser, seamlessly switch to redirect authentication
+            if (error.code === "auth/popup-blocked" || error.code === "auth/popup-closed-by-user" || error.code === "auth/cancelled-popup-request") {
+              signInWithRedirect(auth, provider).catch((redirectErr) => {
+                console.error("Firebase Redirect Error:", redirectErr);
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google"> Login with Google';
+                alert("Login Error: " + (redirectErr.message || "Please check popup/redirect permissions"));
+              });
+            } else {
+              loginBtn.disabled = false;
+              loginBtn.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google"> Login with Google';
+              alert("Login Error: " + (error.message || "Please check connection"));
+            }
+          });
+      });
+    }
   </script>
 
 </body>
