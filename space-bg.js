@@ -271,6 +271,13 @@
     onPointerMove(e.clientX, e.clientY);
   }, { passive: true });
 
+  window.addEventListener('touchstart', function (e) {
+    if (e.touches && e.touches[0]) {
+      mouse.lastX = e.touches[0].clientX;
+      mouse.lastY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
   window.addEventListener('touchmove', function (e) {
     if (e.touches && e.touches[0]) {
       onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
