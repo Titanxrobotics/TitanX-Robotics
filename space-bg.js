@@ -1,9 +1,9 @@
 /**
  * ============================================================================
- * TITANX ROBOTICS - 3D INTERACTIVE COSMIC SPACE & PLANETARY ENGINE (space-bg.js)
- * High-performance 60FPS 3D Celestial Cosmos with 3D Orbital Planets,
- * Saturn-like 3D Ring Systems, Orbiting Moons, Parallax Nebulae,
- * Starfield, Constellations, Shooting Stars, Depth Warp & Mouse Inertia.
+ * TITANX ROBOTICS - 3D INTERACTIVE COSMIC SPACE, THUNDERSTORM & PLANETARY ENGINE
+ * High-performance 60FPS Celestial Cosmos with Realistic Branched Lightning Bolts,
+ * Cosmic Thunderstorm Flashes, Sheet Lightning, 3D Orbital Planets, Saturn Rings,
+ * Orbiting Moons, Parallax Storm Nebulae, Starfield, Meteors & Touch Navigation.
  * ============================================================================
  */
 (function () {
@@ -37,7 +37,7 @@
   var H = (canvas.height = window.innerHeight);
 
   // Configuration
-  var STAR_COUNT = Math.min(650, Math.floor((W * H) / 2200));
+  var STAR_COUNT = Math.min(600, Math.floor((W * H) / 2400));
   var FOV = 480;
   var BOUNDS = 1100;
 
@@ -60,6 +60,16 @@
   var autoSpinY = 0;
   var scrollOffsetZ = 0;
   var targetScrollOffsetZ = 0;
+
+  // ⚡ THUNDER & LIGHTNING SYSTEM STATE
+  var thunderState = {
+    timer: 0,
+    nextStrikeTime: 3.0,
+    activeBolts: [],
+    ambientFlash: 0,
+    flashColor: 'rgba(0, 240, 255, 0.25)',
+    plasmaTendrils: []
+  };
 
   // Color Palettes for Stars
   var STAR_COLORS = [
@@ -106,22 +116,22 @@
     }
   }
 
-  // 2. Volumetric 3D Nebulae Clouds
+  // 2. Cosmic Thunderstorm Nebulae Clouds
   var nebulae = [];
   function initNebulae() {
     nebulae = [
-      { x: -350, y: -200, z: 200, r: 440, color: 'rgba(0, 240, 255, 0.06)' },
-      { x: 380, y: 220, z: -100, r: 480, color: 'rgba(168, 85, 247, 0.07)' },
-      { x: -200, y: 300, z: 300, r: 380, color: 'rgba(59, 130, 246, 0.05)' },
-      { x: 280, y: -260, z: -250, r: 400, color: 'rgba(236, 72, 153, 0.04)' },
-      { x: 0, y: 0, z: 450, r: 520, color: 'rgba(14, 165, 233, 0.035)' }
+      { x: -350, y: -200, z: 200, r: 440, color: 'rgba(0, 240, 255, 0.07)', stormAlpha: 0.14 },
+      { x: 380, y: 220, z: -100, r: 480, color: 'rgba(168, 85, 247, 0.08)', stormAlpha: 0.16 },
+      { x: -200, y: 300, z: 300, r: 380, color: 'rgba(59, 130, 246, 0.06)', stormAlpha: 0.12 },
+      { x: 280, y: -260, z: -250, r: 400, color: 'rgba(236, 72, 153, 0.05)', stormAlpha: 0.10 },
+      { x: 0, y: 0, z: 450, r: 520, color: 'rgba(14, 165, 233, 0.05)', stormAlpha: 0.15 }
     ];
   }
 
   // 3. 3D Planets & Moons Model System
   var planets = [
     {
-      name: 'Titan-Prime', // Gas Giant with 3D Rings
+      name: 'Titan-Prime',
       orbitRadius: 520,
       orbitSpeed: 0.00035,
       orbitAngle: 0.8,
@@ -141,14 +151,14 @@
       hasRings: true,
       ringInner: 58,
       ringOuter: 104,
-      ringTilt: 0.42, // Angle in radians
+      ringTilt: 0.42,
       ringColorInner: 'rgba(0, 240, 255, 0.55)',
       ringColorMid: 'rgba(168, 85, 247, 0.4)',
       ringColorOuter: 'rgba(0, 240, 255, 0.05)',
       hasMoon: false
     },
     {
-      name: 'Aether-9', // Violet Planet with Moon
+      name: 'Aether-9',
       orbitRadius: 380,
       orbitSpeed: -0.0005,
       orbitAngle: 3.2,
@@ -174,7 +184,7 @@
       moonColor: '#cbd5e1'
     },
     {
-      name: 'Solaris-Prime', // Fiery Molten Planet
+      name: 'Solaris-Prime',
       orbitRadius: 680,
       orbitSpeed: 0.00028,
       orbitAngle: 4.9,
@@ -195,7 +205,7 @@
       hasMoon: false
     },
     {
-      name: 'Cryo-Glacis', // Luminous Ice Planet
+      name: 'Cryo-Glacis',
       orbitRadius: 790,
       orbitSpeed: -0.0002,
       orbitAngle: 1.9,
@@ -239,11 +249,104 @@
     });
   }
 
+  // ==========================================================================
+  // ⚡ PROCEDURAL FRACTAL LIGHTNING & THUNDER ENGINE
+  // ==========================================================================
+  function createLightningSegment(x1, y1, x2, y2, displace, depth, maxDepth) {
+    if (depth >= maxDepth || displace < 3) {
+      return [{ x: x1, y: y1 }, { x: x2, y: y2 }];
+    }
+
+    var midX = (x1 + x2) / 2 + (Math.random() - 0.5) * displace;
+    var midY = (y1 + y2) / 2 + (Math.random() - 0.5) * displace;
+
+    var leftBranch = createLightningSegment(x1, y1, midX, midY, displace * 0.58, depth + 1, maxDepth);
+    var rightBranch = createLightningSegment(midX, midY, x2, y2, displace * 0.58, depth + 1, maxDepth);
+
+    return leftBranch.concat(rightBranch.slice(1));
+  }
+
+  function generateForkedBolt(startX, startY, endX, endY, mainDisplace, maxDepth) {
+    var mainPath = createLightningSegment(startX, startY, endX, endY, mainDisplace, 0, maxDepth);
+    var branches = [];
+
+    // Generate 2-4 sub-branches splitting off the main trunk
+    var branchCount = Math.floor(Math.random() * 3) + 2;
+    for (var b = 0; b < branchCount; b++) {
+      var splitIdx = Math.floor(Math.random() * (mainPath.length - 4)) + 2;
+      var splitPt = mainPath[splitIdx];
+      if (!splitPt) continue;
+
+      var angle = Math.atan2(endY - startY, endX - startX) + (Math.random() - 0.5) * 1.4;
+      var len = (Math.random() * 0.5 + 0.3) * Math.hypot(endX - startX, endY - startY);
+      var bEndX = splitPt.x + Math.cos(angle) * len;
+      var bEndY = splitPt.y + Math.sin(angle) * len;
+
+      var bPath = createLightningSegment(splitPt.x, splitPt.y, bEndX, bEndY, mainDisplace * 0.5, 0, maxDepth - 1);
+      branches.push(bPath);
+    }
+
+    return {
+      trunk: mainPath,
+      branches: branches
+    };
+  }
+
+  function triggerLightningStrike(isSheetOnly) {
+    var isCyan = Math.random() > 0.35;
+    var primaryColor = isCyan ? 'rgba(0, 240, 255, ' : 'rgba(168, 85, 247, ';
+    var glowColor = isCyan ? '#00f0ff' : '#c084fc';
+
+    // Flash illumination
+    thunderState.ambientFlash = isSheetOnly ? 0.45 : 0.95;
+    thunderState.flashColor = primaryColor;
+
+    if (!isSheetOnly) {
+      // Pick random source from top cloud/space or celestial focal point
+      var startX = Math.random() * W;
+      var startY = Math.random() * (H * 0.25);
+
+      // Target across space (sometimes towards a planet or bottom)
+      var endX = startX + (Math.random() - 0.5) * (W * 0.65);
+      var endY = H * (Math.random() * 0.5 + 0.5);
+
+      var boltData = generateForkedBolt(startX, startY, endX, endY, Math.min(W, H) * 0.22, 5);
+
+      thunderState.activeBolts.push({
+        bolt: boltData,
+        life: 1.0,
+        decay: Math.random() * 0.045 + 0.035,
+        glowColor: glowColor,
+        strobeCount: Math.floor(Math.random() * 2) + 2, // Multi-strike strobe
+        strobeTimer: 0
+      });
+    }
+  }
+
+  // Interactive Plasma Micro-Arc on cursor/touch
+  function triggerPlasmaSparks(cx, cy) {
+    if (thunderState.plasmaTendrils.length >= 4) return;
+    var count = Math.floor(Math.random() * 2) + 1;
+    for (var i = 0; i < count; i++) {
+      var angle = Math.random() * Math.PI * 2;
+      var len = Math.random() * 50 + 30;
+      var tx = cx + Math.cos(angle) * len;
+      var ty = cy + Math.sin(angle) * len;
+      var path = createLightningSegment(cx, cy, tx, ty, 18, 0, 3);
+      thunderState.plasmaTendrils.push({
+        path: path,
+        life: 1.0,
+        decay: 0.12,
+        color: Math.random() > 0.5 ? '#00f0ff' : '#a855f7'
+      });
+    }
+  }
+
   // Resize handler
   function handleResize() {
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
-    STAR_COUNT = Math.min(650, Math.floor((W * H) / 2200));
+    STAR_COUNT = Math.min(600, Math.floor((W * H) / 2400));
     initStars();
     initNebulae();
   }
@@ -265,6 +368,11 @@
 
     mouse.velRotY += dx * 0.00012;
     mouse.velRotX -= dy * 0.00012;
+
+    // Small interactive plasma spark if fast motion
+    if (mouse.speed > 28 && Math.random() < 0.15) {
+      triggerPlasmaSparks(clientX, clientY);
+    }
   }
 
   window.addEventListener('mousemove', function (e) {
@@ -275,6 +383,7 @@
     if (e.touches && e.touches[0]) {
       mouse.lastX = e.touches[0].clientX;
       mouse.lastY = e.touches[0].clientY;
+      triggerPlasmaSparks(e.touches[0].clientX, e.touches[0].clientY);
     }
   }, { passive: true });
 
@@ -290,7 +399,7 @@
     targetScrollOffsetZ = (scrollY % 1600) * 0.5;
   }, { passive: true });
 
-  // Gyroscope for Mobile
+  // Mobile Gyroscope
   if (window.DeviceOrientationEvent) {
     window.addEventListener('deviceorientation', function (e) {
       if (e.gamma !== null && e.beta !== null) {
@@ -303,23 +412,26 @@
   initStars();
   initNebulae();
 
-  // Draw a 3D Planet Sphere with light source and surface details
-  function drawPlanetBody(p, px, py, radius, scale, rotX, rotY) {
+  // Draw 3D Planet Body
+  function drawPlanetBody(p, px, py, radius, scale, rotX, rotY, thunderBoost) {
     if (radius < 2) return;
 
     ctx.save();
 
-    // 1. Atmosphere / Outer Corona Halo
-    var haloRadius = radius * 1.5;
+    // 1. Atmosphere Halo (Intensified during Thunder Flash)
+    var haloRadius = radius * (1.5 + thunderBoost * 0.4);
     var haloGrad = ctx.createRadialGradient(px, py, radius * 0.8, px, py, haloRadius);
     haloGrad.addColorStop(0, p.colors.halo);
+    if (thunderBoost > 0.1) {
+      haloGrad.addColorStop(0.5, 'rgba(0, 240, 255, ' + (thunderBoost * 0.3).toFixed(2) + ')');
+    }
     haloGrad.addColorStop(1, 'transparent');
     ctx.fillStyle = haloGrad;
     ctx.beginPath();
     ctx.arc(px, py, haloRadius, 0, Math.PI * 2);
     ctx.fill();
 
-    // 2. Planet Disc Clip for Internal Atmospheric Shading & Texture Bands
+    // 2. Planet Disc Clip
     ctx.save();
     ctx.beginPath();
     ctx.arc(px, py, radius, 0, Math.PI * 2);
@@ -329,37 +441,35 @@
     ctx.fillStyle = p.colors.base;
     ctx.fillRect(px - radius, py - radius, radius * 2, radius * 2);
 
-    // Dynamic 3D Atmospheric Bands / Surface Texture
-    var bandOffset = (p.selfRot % 1) * radius * 0.8;
+    // Dynamic 3D Bands
     var bandCount = p.type === 'gas-giant' ? 8 : 4;
     for (var b = -bandCount; b <= bandCount; b++) {
       var by = py + (b * radius * 0.28) + Math.sin(p.selfRot + b) * 3;
       var bh = radius * 0.16;
       ctx.fillStyle = b % 2 === 0 ? p.colors.mid : p.colors.bright;
-      ctx.globalAlpha = 0.28 + 0.1 * Math.sin(b + p.selfRot);
+      ctx.globalAlpha = 0.28 + 0.1 * Math.sin(b + p.selfRot) + thunderBoost * 0.15;
       ctx.beginPath();
       ctx.ellipse(px, by, radius * 1.05, bh, p.hasRings ? p.ringTilt * 0.5 : 0, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.globalAlpha = 1.0;
 
-    // 3. Spherical 3D Lighting & Shadow (Day/Night Terminator)
-    // Simulated cosmic light from upper-left
+    // 3. Spherical 3D Lighting & Shadow
     var lightX = px - radius * 0.45;
     var lightY = py - radius * 0.45;
     var sphereGrad = ctx.createRadialGradient(
       lightX, lightY, radius * 0.1,
       px, py, radius * 1.05
     );
-    sphereGrad.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
+    sphereGrad.addColorStop(0, 'rgba(255, 255, 255, ' + (0.45 + thunderBoost * 0.4).toFixed(2) + ')');
     sphereGrad.addColorStop(0.3, 'rgba(255, 255, 255, 0.05)');
-    sphereGrad.addColorStop(0.65, 'rgba(0, 0, 0, 0.4)');
-    sphereGrad.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
+    sphereGrad.addColorStop(0.65, 'rgba(0, 0, 0, ' + Math.max(0.1, 0.4 - thunderBoost * 0.3).toFixed(2) + ')');
+    sphereGrad.addColorStop(1, 'rgba(0, 0, 0, ' + Math.max(0.2, 0.95 - thunderBoost * 0.5).toFixed(2) + ')');
 
     ctx.fillStyle = sphereGrad;
     ctx.fillRect(px - radius, py - radius, radius * 2, radius * 2);
 
-    // 4. Atmospheric Rim Glow (Fresnel Limb Lighting)
+    // 4. Atmospheric Rim Glow
     var rimGrad = ctx.createRadialGradient(px, py, radius * 0.75, px, py, radius);
     rimGrad.addColorStop(0, 'transparent');
     rimGrad.addColorStop(0.85, p.colors.atmosphere);
@@ -369,7 +479,7 @@
 
     ctx.restore(); // End planet clip
 
-    // Planet Border Crisp Edge
+    // Planet Border
     ctx.strokeStyle = p.colors.atmosphere;
     ctx.lineWidth = Math.max(0.5, 1.2 * scale);
     ctx.beginPath();
@@ -379,21 +489,19 @@
     ctx.restore();
   }
 
-  // Draw 3D Saturn-like Planetary Rings (split into back and front halves for true 3D occlusion)
+  // Draw 3D Saturn-like Planetary Rings
   function drawPlanetRings(p, px, py, scale, isFrontHalf) {
     if (!p.hasRings) return;
 
     var innerR = p.ringInner * scale;
     var outerR = p.ringOuter * scale;
-    var heightRatio = 0.28; // Tilted perspective flatness
+    var heightRatio = 0.28;
     var angle = p.ringTilt;
 
     ctx.save();
     ctx.translate(px, py);
     ctx.rotate(angle);
 
-    // Front half = angles from 0 to PI (bottom/front)
-    // Back half = angles from PI to 2*PI (top/back)
     var startAngle = isFrontHalf ? 0 : Math.PI;
     var endAngle = isFrontHalf ? Math.PI : Math.PI * 2;
 
@@ -411,7 +519,6 @@
     ctx.fillStyle = ringGrad;
     ctx.fill();
 
-    // Subtle luminous ring stripes
     ctx.lineWidth = Math.max(0.5, 0.8 * scale);
     ctx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
     ctx.beginPath();
@@ -422,14 +529,13 @@
   }
 
   // Draw Orbiting Moon
-  function drawMoon(p, scale) {
+  function drawMoon(p) {
     if (!p.hasMoon || !p.moon) return;
     var m = p.moon;
     if (m.px < -20 || m.px > W + 20 || m.py < -20 || m.py > H + 20) return;
 
     var mRadius = Math.max(0.8, p.moonRadius * m.scale);
 
-    // Moon glow
     ctx.save();
     var mGrad = ctx.createRadialGradient(m.px - mRadius * 0.3, m.py - mRadius * 0.3, mRadius * 0.1, m.px, m.py, mRadius * 1.4);
     mGrad.addColorStop(0, '#ffffff');
@@ -443,6 +549,28 @@
 
     ctx.strokeStyle = 'rgba(203, 213, 225, 0.5)';
     ctx.lineWidth = 0.5;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw a single lightning branch polyline
+  function renderLightningPath(points, width, strokeStyle, shadowBlur, shadowColor) {
+    if (!points || points.length < 2) return;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (var i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.lineWidth = width;
+    ctx.strokeStyle = strokeStyle;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    if (shadowBlur > 0) {
+      ctx.shadowBlur = shadowBlur;
+      ctx.shadowColor = shadowColor;
+    }
     ctx.stroke();
     ctx.restore();
   }
@@ -463,26 +591,52 @@
     mouse.currRotY += (mouse.targetRotY + mouse.velRotY - mouse.currRotY) * 0.06;
     mouse.currRotX += (mouse.targetRotX + mouse.velRotX - mouse.currRotX) * 0.06;
 
-    // Dampen impulse velocity
     mouse.velRotY *= 0.92;
     mouse.velRotX *= 0.92;
 
-    // Smooth scroll depth
     scrollOffsetZ += (targetScrollOffsetZ - scrollOffsetZ) * 0.08;
 
     var totalRotY = mouse.currRotY + autoSpinY;
     var totalRotX = mouse.currRotX + Math.sin(autoSpinX) * 0.15;
 
-    // Precalculate Trig
     var cosY = Math.cos(totalRotY);
     var sinY = Math.sin(totalRotY);
     var cosX = Math.cos(totalRotX);
     var sinX = Math.sin(totalRotX);
 
+    // ⚡ THUNDER CYCLE UPDATE
+    thunderState.timer += dt;
+    if (thunderState.timer >= thunderState.nextStrikeTime) {
+      thunderState.timer = 0;
+      thunderState.nextStrikeTime = Math.random() * 4.5 + 2.8; // Random interval
+      var isSheet = Math.random() < 0.25; // 25% sheet thunder, 75% forked bolts
+      triggerLightningStrike(isSheet);
+    }
+
+    // Decay ambient thunder flash
+    thunderState.ambientFlash *= 0.88;
+    if (thunderState.ambientFlash < 0.01) thunderState.ambientFlash = 0;
+
     // Clear Canvas
     ctx.clearRect(0, 0, W, H);
 
-    // 1. Draw 3D Parallax Nebulae
+    // ⚡ DRAW THUNDER FLASH AMBIENT SKY GLOW
+    if (thunderState.ambientFlash > 0.02) {
+      ctx.save();
+      ctx.fillStyle = thunderState.flashColor + (thunderState.ambientFlash * 0.35).toFixed(3) + ')';
+      ctx.fillRect(0, 0, W, H);
+
+      // Radial strobe center
+      var flashGrad = ctx.createRadialGradient(W / 2, H * 0.3, 50, W / 2, H * 0.3, Math.max(W, H) * 0.8);
+      flashGrad.addColorStop(0, 'rgba(255, 255, 255, ' + (thunderState.ambientFlash * 0.4).toFixed(3) + ')');
+      flashGrad.addColorStop(0.5, 'rgba(0, 240, 255, ' + (thunderState.ambientFlash * 0.25).toFixed(3) + ')');
+      flashGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = flashGrad;
+      ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+    }
+
+    // 1. Draw 3D Parallax Nebulae / Thunderstorm Clouds
     for (var n = 0; n < nebulae.length; n++) {
       var neb = nebulae[n];
       var ny1 = neb.y * cosX - neb.z * sinX;
@@ -499,6 +653,10 @@
         if (npx + nRadius > 0 && npx - nRadius < W && npy + nRadius > 0 && npy - nRadius < H) {
           var grad = ctx.createRadialGradient(npx, npy, 0, npx, npy, Math.max(10, nRadius));
           grad.addColorStop(0, neb.color);
+          // Storm clouds glow during lightning
+          if (thunderState.ambientFlash > 0.05) {
+            grad.addColorStop(0.4, 'rgba(0, 240, 255, ' + (thunderState.ambientFlash * neb.stormAlpha).toFixed(3) + ')');
+          }
           grad.addColorStop(1, 'transparent');
           ctx.fillStyle = grad;
           ctx.beginPath();
@@ -554,7 +712,7 @@
 
         if (distSq < 4900) {
           var dist = Math.sqrt(distSq);
-          var alpha = (1 - dist / 70) * 0.22 * Math.min(s1.scale, s2.scale) * 1.5;
+          var alpha = (1 - dist / 70) * (0.22 + thunderState.ambientFlash * 0.3) * Math.min(s1.scale, s2.scale) * 1.5;
           ctx.strokeStyle = 'rgba(0, 240, 255, ' + alpha.toFixed(3) + ')';
           ctx.beginPath();
           ctx.moveTo(s1.px, s1.py);
@@ -571,7 +729,7 @@
       s.twinklePhase += s.twinkleSpeed;
       var twinkle = 0.7 + 0.3 * Math.sin(s.twinklePhase);
       var depthAlpha = Math.max(0.12, Math.min(1.0, (1400 - s.z2) / 1000));
-      var finalAlpha = depthAlpha * twinkle;
+      var finalAlpha = Math.min(1.0, depthAlpha * twinkle + thunderState.ambientFlash * 0.4);
       var radius = Math.max(0.4, s.baseSize * s.scale * 1.4);
 
       var c = s.color;
@@ -601,22 +759,19 @@
     }
 
     // 5. Update & Render 3D Planetary Systems
-    // Update planetary orbital positions
     for (var pIdx = 0; pIdx < planets.length; pIdx++) {
       var p = planets[pIdx];
       p.orbitAngle += p.orbitSpeed;
       p.selfRot += p.selfRotSpeed;
 
-      // 3D Orbital Coordinates
       var rawPlanetX = Math.cos(p.orbitAngle) * p.orbitRadius;
       var rawPlanetZ = Math.sin(p.orbitAngle) * p.orbitRadius;
       var rawPlanetY = Math.sin(p.orbitAngle * 1.5) * (p.orbitRadius * p.orbitTilt);
 
-      // Apply 3D Camera / Mouse Rotation Matrix
       var py1 = rawPlanetY * cosX - rawPlanetZ * sinX;
       var pz1 = rawPlanetY * sinX + rawPlanetZ * cosX;
       var px2 = rawPlanetX * cosY + pz1 * sinY;
-      var pz2 = -rawPlanetX * sinY + pz1 * cosY + 700; // Camera distance
+      var pz2 = -rawPlanetX * sinY + pz1 * cosY + 700;
 
       p.z2 = pz2;
       if (pz2 > 50) {
@@ -631,7 +786,6 @@
         p.visible = false;
       }
 
-      // Calculate Orbiting Moon if present
       if (p.hasMoon && p.visible) {
         p.moonAngle += p.moonOrbitSpeed;
         var rawMoonX = rawPlanetX + Math.cos(p.moonAngle) * p.moonOrbitRadius;
@@ -655,7 +809,6 @@
       }
     }
 
-    // Sort Planets by Depth (Z-buffer back-to-front rendering)
     var sortedPlanets = planets.slice().sort(function (a, b) {
       return b.z2 - a.z2;
     });
@@ -664,31 +817,77 @@
       var p = sortedPlanets[pIdx];
       if (!p.visible) continue;
 
-      // 1. Draw Back Half of 3D Rings (behind planet body)
       if (p.hasRings) {
         drawPlanetRings(p, p.px, p.py, p.scale, false);
       }
 
-      // 2. Draw Moon behind planet if moon.z2 > planet.z2
       if (p.hasMoon && p.moon && p.moon.z2 >= p.z2) {
-        drawMoon(p, p.scale);
+        drawMoon(p);
       }
 
-      // 3. Draw Planet Body with 3D Shader
-      drawPlanetBody(p, p.px, p.py, p.renderedRadius, p.scale, totalRotX, totalRotY);
+      drawPlanetBody(p, p.px, p.py, p.renderedRadius, p.scale, totalRotX, totalRotY, thunderState.ambientFlash);
 
-      // 4. Draw Front Half of 3D Rings (in front of planet body)
       if (p.hasRings) {
         drawPlanetRings(p, p.px, p.py, p.scale, true);
       }
 
-      // 5. Draw Moon in front of planet if moon.z2 < planet.z2
       if (p.hasMoon && p.moon && p.moon.z2 < p.z2) {
-        drawMoon(p, p.scale);
+        drawMoon(p);
       }
     }
 
-    // 6. Spawn & Draw Meteors / Shooting Stars
+    // ⚡ 6. RENDER ACTIVE LIGHTNING BOLTS (Triple Pass Bloom)
+    for (var bIdx = thunderState.activeBolts.length - 1; bIdx >= 0; bIdx--) {
+      var activeBolt = thunderState.activeBolts[bIdx];
+      activeBolt.life -= activeBolt.decay;
+
+      if (activeBolt.life <= 0) {
+        thunderState.activeBolts.splice(bIdx, 1);
+        continue;
+      }
+
+      // Strobe flickering
+      activeBolt.strobeTimer++;
+      var isStrobeVisible = activeBolt.strobeCount <= 0 || (activeBolt.strobeTimer % 2 === 0);
+      if (!isStrobeVisible) continue;
+
+      var boltObj = activeBolt.bolt;
+      var alpha = activeBolt.life;
+
+      // Pass 1: Massive Outer Bloom
+      renderLightningPath(boltObj.trunk, 14 * alpha, activeBolt.glowColor, 28, activeBolt.glowColor);
+      for (var k = 0; k < boltObj.branches.length; k++) {
+        renderLightningPath(boltObj.branches[k], 8 * alpha, activeBolt.glowColor, 18, activeBolt.glowColor);
+      }
+
+      // Pass 2: Electric Cyan / Violet Mid-Core
+      renderLightningPath(boltObj.trunk, 4.5 * alpha, 'rgba(0, 240, 255, ' + (alpha * 0.9).toFixed(2) + ')', 12, '#00f0ff');
+      for (var k = 0; k < boltObj.branches.length; k++) {
+        renderLightningPath(boltObj.branches[k], 2.5 * alpha, 'rgba(0, 240, 255, ' + (alpha * 0.8).toFixed(2) + ')', 8, '#00f0ff');
+      }
+
+      // Pass 3: Blinding Pure White Hot Core
+      renderLightningPath(boltObj.trunk, 1.8 * alpha, 'rgba(255, 255, 255, ' + alpha.toFixed(2) + ')', 0, '');
+      for (var k = 0; k < boltObj.branches.length; k++) {
+        renderLightningPath(boltObj.branches[k], 1.0 * alpha, 'rgba(255, 255, 255, ' + (alpha * 0.9).toFixed(2) + ')', 0, '');
+      }
+    }
+
+    // ⚡ 7. RENDER INTERACTIVE PLASMA TENDRILS (Cursor/Touch sparks)
+    for (var tIdx = thunderState.plasmaTendrils.length - 1; tIdx >= 0; tIdx--) {
+      var tendril = thunderState.plasmaTendrils[tIdx];
+      tendril.life -= tendril.decay;
+
+      if (tendril.life <= 0) {
+        thunderState.plasmaTendrils.splice(tIdx, 1);
+        continue;
+      }
+
+      renderLightningPath(tendril.path, 3.5 * tendril.life, tendril.color, 12, tendril.color);
+      renderLightningPath(tendril.path, 1.2 * tendril.life, '#ffffff', 0, '');
+    }
+
+    // 8. Spawn & Draw Meteors / Shooting Stars
     meteorTimer += dt;
     if (meteorTimer > 2.5 + Math.random() * 2) {
       meteorTimer = 0;
