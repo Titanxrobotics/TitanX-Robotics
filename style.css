@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    TITANX ROBOTICS - CYBERNETIC DESIGN SYSTEM (STYLE.CSS)
    ========================================================================== */
 
@@ -47,18 +47,25 @@ html {
 }
 
 body {
-  background-color: var(--bg-primary);
+  background-color: #02040a;
   color: var(--text-main);
   font-family: var(--font-body);
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
-  background-image: 
-    radial-gradient(circle at 15% 20%, rgba(0, 240, 255, 0.07) 0%, transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
-    linear-gradient(to bottom, #040711, #060b18);
-  background-attachment: fixed;
+}
+
+/* 3D Interactive Space Cosmos Canvas */
+#titanx-space-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, #060c1e 0%, #030611 60%, #010206 100%);
 }
 
 /* Custom Cyber Grid Background Overlay */
@@ -71,10 +78,10 @@ body::before {
   height: 100vh;
   background-size: 50px 50px;
   background-image: 
-    linear-gradient(to right, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, rgba(0, 240, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 240, 255, 0.035) 1px, transparent 1px);
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
 }
 
 /* Custom Scrollbar */

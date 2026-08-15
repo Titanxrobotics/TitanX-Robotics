@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -285,25 +285,7 @@
     };
   </script>
 
-  <!-- Stars -->
-  <script>
-    const canvas = document.getElementById("starCanvas");
-    const ctx = canvas.getContext("2d");
-    let W, H, stars = [];
-    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-    function initStars() {
-      stars = [];
-      for (let i = 0; i < 180; i++) {
-        stars.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.3+0.2, a:Math.random(), speed:Math.random()*0.5+0.2, dir:Math.random()>.5?1:-1, color:['#fff','#a78bfa','#93c5fd','#fbbf24'][Math.floor(Math.random()*4)] });
-      }
-    }
-    function draw() {
-      ctx.clearRect(0,0,W,H);
-      stars.forEach(s => { s.a+=s.speed*0.01*s.dir; if(s.a>1||s.a<0)s.dir*=-1; ctx.save(); ctx.globalAlpha=s.a*0.85; ctx.fillStyle=s.color; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); ctx.restore(); });
-      requestAnimationFrame(draw);
-    }
-    window.addEventListener('resize',()=>{resize();initStars();});
-    resize(); initStars(); draw();
-  </script>
+  <!-- 🌌 3D INTERACTIVE COSMIC SPACE ENGINE -->
+  <script src="space-bg.js"></script>
 </body>
 </html>
